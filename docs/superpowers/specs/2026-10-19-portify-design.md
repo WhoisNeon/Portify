@@ -84,12 +84,12 @@ other applications connect to.
 | `tauri` | 2 | App shell, IPC, state management. |
 | `tauri-build` | 2 | Build script (context generation). |
 | `serde` / `serde_json` | 1 | Config + persistence models. |
-| `url` | 2 | Link parsing (percent-decoding, query params). |
+| `percent-encoding` | 2 | Percent-decoding link components. |
 | `uuid` | 1 | UUID validation for VLESS. |
 | `base64` | 0.23 | SS2022 password validation, Reality key decode. |
-| `percent-encoding` | 2 | Decoding userinfo/host in links. |
 | `reqwest` | 0.13 | Probe traffic, sing-box auto-download. Features: `json`, `socks`, `rustls`, `charset`, `http2`. |
-| `zip` | 2 | Extract the sing-box release archive. |
+| `zip` | 2.6 | Extract the sing-box release archive. |
+| `sha2` | 0.10 | Verify the SHA-256 of a downloaded sing-box binary. |
 | `tokio` | 1 | Async runtime for probes. |
 | `dirs` | 7 | `%APPDATA%` / user data dirs. |
 | `tauri-plugin-dialog` | 2 | Native file picker for link files. |
@@ -144,8 +144,15 @@ Validation failures (per line, reported to the user, line skipped):
 - Missing host or port, or port outside 1–65535.
 - `encryption` present and not `none`.
 - `security=reality` without `pbk`.
-- `security=reality` with an undecodable `pbk` (not base64url of 32 bytes).
-- `security=reality` with `sid` longer than 8 hex chars.
+- `security=reality` with a `pbk` that is not base64**url**-safe (no `+` or `/`)
+  or does not decode to exactly 32 bytes. Verified: a standard-base64 `+`
+  fails with `decode public_key: illegal base64 data at input byte 42`.
+- `security=reality` with a `sid` that is not valid hex, has an **odd** length,
+  or is **longer than 16 hex characters**. Verified: an odd length fails with
+  `decode short_id: encoding/hex: odd length hex string`, a non-hex character
+  fails with `invalid byte`, and a `sid` longer than 16 characters makes
+  sing-box **panic** (`index out of range [8] with length 8`) — Portify must
+  reject it at import rather than hand it to sing-box.
 
 ### 4.2 Shadowsocks
 
@@ -168,9 +175,14 @@ Validation failures:
   `2022-blake3-chacha20-poly1305`, plus the legacy ciphers
   `aes-128-ctr`, `aes-192-ctr`, `aes-256-ctr`, `aes-128-cfb`,
   `aes-192-cfb`, `aes-256-cfb`, `rc4-md5`, `chacha20-ietf`, `xchacha20`).
-- For the `2022-blake3-*` methods, the password must be valid base64 — sing-box
-  rejects a raw string with `illegal base64 data`. Verified against
-  `sing-box 1.14.3 check`.
+- For the `2022-blake3-*` methods, the password must be valid base64 **and** must
+  decode to an exact key length. Verified against `sing-box 1.14.3 check`:
+  - `2022-blake3-aes-128-gcm` → 16 bytes
+  - `2022-blake3-aes-256-gcm` → 32 bytes
+  - `2022-blake3-chacha20-poly1305` → 32 bytes
+
+  A non-base64 password fails with `illegal base64 data`; a wrong length fails
+  with `bad key length, required 16, got 5`.
 
 ### 4.3 Duplicate detection
 
@@ -624,8 +636,12 @@ All verified locally against the real binaries on 2026-10-19:
 - `--disable-color` is a valid global flag.
 - An SS2022 password must be base64; a raw string fails with
   `decode key: illegal base64 data at input byte 20`.
-- A Reality public key must decode to 32 bytes; a short string fails with
-  `invalid public_key`.
+- A Reality public key must be base64url and decode to 32 bytes; a standard-base64
+  `+` fails, a short key fails with `invalid public_key`.
+- A Reality `short_id` must be even-length hex of at most 16 characters. An
+  odd length fails with `odd length hex string`; a non-hex character fails with
+  `invalid byte`; **more than 16 characters makes sing-box panic** with
+  `index out of range [8] with length 8`.
 - A config with no `dns` block still starts, but an explicit `local` DNS
   server makes outbound hostname resolution predictable.
 - `undici 7.19.2`'s `ProxyAgent` throws on a `socks5://` URL; 9Router uses
