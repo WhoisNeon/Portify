@@ -47,6 +47,8 @@ pub fn allocate_ports(
 
     // The ranges must not overlap, or one node's HTTP inbound would collide
     // with another node's SOCKS inbound.
+    let socks_start = socks_start as u32;
+    let http_start = http_start as u32;
     if socks_start <= http_end && http_start <= socks_end {
         return Err(format!(
             "the SOCKS range {socks_start}-{socks_end} and the HTTP range {http_start}-{http_end} overlap"
@@ -519,8 +521,8 @@ mod tests {
             (TransportType::HttpUpgrade, Some("httpupgrade")),
         ];
         for (kind, expected) in cases {
-            let node = vless_node("t");
-            let transport = match expected {
+            let mut node = vless_node("t");
+            node.transport = match expected {
                 None => None,
                 Some(_) => Some(Transport {
                     kind,
@@ -529,7 +531,14 @@ mod tests {
                     service_name: Some("s".into()),
                 }),
             };
-            assert_eq!(node.transport.is_none(), expected.is_none());
+            let out = config_to_singbox_json(&node, "n0");
+            match expected {
+                None => assert!(
+                    out.get("transport").is_none(),
+                    "{kind:?} should not produce a transport block"
+                ),
+                Some(name) => assert_eq!(out["transport"]["type"], name),
+            }
         }
     }
 

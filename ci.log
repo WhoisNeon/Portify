@@ -1,592 +1,415 @@
-﻿2026-10-19T21:19:17.9786568Z Current runner version: '2.337.0'
-2026-10-19T21:19:17.9808106Z ##[group]Runner Image Provisioner
-2026-10-19T21:19:17.9808814Z Hosted Compute Agent
-2026-10-19T21:19:17.9809239Z Version: 20261002.596
-2026-10-19T21:19:17.9809725Z Commit: c3d12f3313a95f25162a1503be624f3b0617f8c0
-2026-10-19T21:19:17.9810261Z Build Date: 2026-10-02T22:28:27Z
-2026-10-19T21:19:17.9810761Z Worker ID: {6d827b66-b924-48b5-af4f-ad957304f637}
-2026-10-19T21:19:17.9811300Z Region: westus3
-2026-10-19T21:19:17.9811723Z Cloud: Azure
-2026-10-19T21:19:17.9812137Z ##[endgroup]
-2026-10-19T21:19:17.9813173Z ##[group]Operating System
-2026-10-19T21:19:17.9813643Z Microsoft Windows Server 2025
-2026-10-19T21:19:17.9814130Z 10.0.26100
-2026-10-19T21:19:17.9814510Z Datacenter
-2026-10-19T21:19:17.9814948Z ##[endgroup]
-2026-10-19T21:19:17.9815418Z ##[group]Runner Image
-2026-10-19T21:19:17.9815887Z Image: windows-2025-vs2026
-2026-10-19T21:19:17.9816472Z Version: 20261007.264.1
-2026-10-19T21:19:17.9817587Z Included Software: https://github.com/actions/runner-images/blob/win25-vs2026/20261007.264/images/windows/Windows2025-VS2026-Readme.md
-2026-10-19T21:19:17.9818876Z Image Release: https://github.com/actions/runner-images/releases/tag/win25-vs2026%2F20261007.264
-2026-10-19T21:19:17.9819974Z ##[endgroup]
-2026-10-19T21:19:17.9820837Z ##[group]GITHUB_TOKEN Permissions
-2026-10-19T21:19:17.9822574Z Contents: write
-2026-10-19T21:19:17.9823158Z Metadata: read
-2026-10-19T21:19:17.9823594Z ##[endgroup]
-2026-10-19T21:19:17.9825345Z Secret source: Actions
-2026-10-19T21:19:17.9826016Z Cache mode: write
-2026-10-19T21:19:17.9826605Z Prepare workflow directory
-2026-10-19T21:19:18.0128255Z Prepare all required actions
-2026-10-19T21:19:18.0167389Z Getting action download info
-2026-10-19T21:19:18.3052161Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
-2026-10-19T21:19:18.4490308Z Download action repository 'dtolnay/rust-toolchain@stable' (SHA:b725eda525362e7cf34af9a7243cac1e3f01a7ec)
-2026-10-19T21:19:18.6847218Z Download action repository 'Swatinem/rust-cache@v2' (SHA:6323deb102c322ba6fcbdcafc7e3dddab59af2b6)
-2026-10-19T21:19:19.4825852Z Complete job name: Rust core
-2026-10-19T21:19:19.6493535Z ##[group]Run actions/checkout@v4
-2026-10-19T21:19:19.6494566Z with:
-2026-10-19T21:19:19.6494940Z   repository: WhoisNeon/Portify
-2026-10-19T21:19:19.6498271Z   token: ***
-2026-10-19T21:19:19.6498805Z   ssh-strict: true
-2026-10-19T21:19:19.6499157Z   ssh-user: git
-2026-10-19T21:19:19.6499509Z   persist-credentials: true
-2026-10-19T21:19:19.6499904Z   clean: true
-2026-10-19T21:19:19.6500263Z   sparse-checkout-cone-mode: true
-2026-10-19T21:19:19.6500680Z   fetch-depth: 1
-2026-10-19T21:19:19.6501020Z   fetch-tags: false
-2026-10-19T21:19:19.6501369Z   show-progress: true
-2026-10-19T21:19:19.6501715Z   lfs: false
-2026-10-19T21:19:19.6502049Z   submodules: false
-2026-10-19T21:19:19.6502408Z   set-safe-directory: true
-2026-10-19T21:19:19.6502815Z   allow-unsafe-pr-checkout: false
-2026-10-19T21:19:19.6503472Z ##[endgroup]
-2026-10-19T21:19:19.7700499Z Syncing repository: WhoisNeon/Portify
-2026-10-19T21:19:19.7702057Z ##[group]Getting Git version info
-2026-10-19T21:19:19.7702663Z Working directory is 'D:\a\Portify\Portify'
-2026-10-19T21:19:19.8870146Z [command]"C:\Program Files\Git\bin\git.exe" version
-2026-10-19T21:19:20.4243023Z git version 2.56.0.windows.2
-2026-10-19T21:19:20.4282555Z ##[endgroup]
-2026-10-19T21:19:20.4298464Z Temporarily overriding HOME='D:\a\_temp\f7074218-e4bf-48f3-aabd-aca60654fc43' before making global git config changes
-2026-10-19T21:19:20.4299588Z Adding repository directory to the temporary git global config as a safe directory
-2026-10-19T21:19:20.4306852Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\Portify\Portify
-2026-10-19T21:19:20.5366655Z Deleting the contents of 'D:\a\Portify\Portify'
-2026-10-19T21:19:20.5371251Z ##[group]Initializing the repository
-2026-10-19T21:19:20.5378264Z [command]"C:\Program Files\Git\bin\git.exe" init D:\a\Portify\Portify
-2026-10-19T21:19:20.6723178Z Initialized empty Git repository in D:/a/Portify/Portify/.git/
-2026-10-19T21:19:20.6762910Z [command]"C:\Program Files\Git\bin\git.exe" remote add origin https://github.com/WhoisNeon/Portify
-2026-10-19T21:19:20.7490621Z ##[endgroup]
-2026-10-19T21:19:20.7491550Z ##[group]Disabling automatic garbage collection
-2026-10-19T21:19:20.7497735Z [command]"C:\Program Files\Git\bin\git.exe" config --local gc.auto 0
-2026-10-19T21:19:20.7804410Z ##[endgroup]
-2026-10-19T21:19:20.7814219Z ##[group]Setting up auth
-2026-10-19T21:19:20.7815370Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
-2026-10-19T21:19:20.8125952Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
-2026-10-19T21:19:22.5324564Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
-2026-10-19T21:19:22.5647362Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
-2026-10-19T21:19:23.0870223Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
-2026-10-19T21:19:23.1187776Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
-2026-10-19T21:19:23.6129258Z [command]"C:\Program Files\Git\bin\git.exe" config --local http.https://github.com/.extraheader "AUTHORIZATION: basic ***"
-2026-10-19T21:19:23.6456519Z ##[endgroup]
-2026-10-19T21:19:23.6457452Z ##[group]Fetching the repository
-2026-10-19T21:19:23.6468804Z [command]"C:\Program Files\Git\bin\git.exe" -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +e788034103fdee37f9c626ffbf8d758b2fa32be7:refs/remotes/origin/feature/portify
-2026-10-19T21:19:25.0449745Z From https://github.com/WhoisNeon/Portify
-2026-10-19T21:19:25.0450576Z  * [new ref]         e788034103fdee37f9c626ffbf8d758b2fa32be7 -> origin/feature/portify
-2026-10-19T21:19:25.0482527Z ##[endgroup]
-2026-10-19T21:19:25.0482954Z ##[group]Determining the checkout info
-2026-10-19T21:19:25.0484525Z ##[endgroup]
-2026-10-19T21:19:25.0493804Z [command]"C:\Program Files\Git\bin\git.exe" sparse-checkout disable
-2026-10-19T21:19:25.0962890Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all extensions.worktreeConfig
-2026-10-19T21:19:25.1279432Z ##[group]Checking out the ref
-2026-10-19T21:19:25.1287162Z [command]"C:\Program Files\Git\bin\git.exe" checkout --progress --force -B feature/portify refs/remotes/origin/feature/portify
-2026-10-19T21:19:25.2025305Z Switched to a new branch 'feature/portify'
-2026-10-19T21:19:25.2096373Z branch 'feature/portify' set up to track 'origin/feature/portify'.
-2026-10-19T21:19:25.2135910Z ##[endgroup]
-2026-10-19T21:19:25.2587033Z [command]"C:\Program Files\Git\bin\git.exe" log -1 --format=%H
-2026-10-19T21:19:25.2877718Z e788034103fdee37f9c626ffbf8d758b2fa32be7
-2026-10-19T21:19:25.3404514Z ##[group]Run dtolnay/rust-toolchain@stable
-2026-10-19T21:19:25.3404845Z with:
-2026-10-19T21:19:25.3405014Z   components: rustfmt, clippy
-2026-10-19T21:19:25.3405208Z   toolchain: stable
-2026-10-19T21:19:25.3458387Z ##[endgroup]
-2026-10-19T21:19:25.3517607Z ##[start-action display=Parse toolchain version;id=__dtolnay_rust-toolchain.parse]
-2026-10-19T21:19:25.3666338Z ##[group]Run if [[ -z $toolchain ]]; then
-2026-10-19T21:19:25.3666738Z [36;1mif [[ -z $toolchain ]]; then[0m
-2026-10-19T21:19:25.3667216Z [36;1m  # GitHub does not enforce `required: true` inputs itself. https://github.com/actions/runner/issues/1070[0m
-2026-10-19T21:19:25.3667642Z [36;1m  echo "'toolchain' is a required input" >&2[0m
-2026-10-19T21:19:25.3668627Z [36;1m  exit 1[0m
-2026-10-19T21:19:25.3668882Z [36;1melif [[ $toolchain =~ ^stable' '[0-9]+' '(year|month|week|day)s?' 'ago$ ]]; then[0m
-2026-10-19T21:19:25.3669201Z [36;1m  if [[ Windows == macOS ]]; then[0m
-2026-10-19T21:19:25.3669634Z [36;1m    echo "toolchain=1.$((($(date -v-$(sed 's/stable \([0-9]*\) \(.\).*/\1\2/' <<< $toolchain) +%s)/60/60/24-16569)/7/6))" >> $GITHUB_OUTPUT[0m
-2026-10-19T21:19:25.3670039Z [36;1m  else[0m
-2026-10-19T21:19:25.3670344Z [36;1m    echo "toolchain=1.$((($(date --date "${toolchain#stable }" +%s)/60/60/24-16569)/7/6))" >> $GITHUB_OUTPUT[0m
-2026-10-19T21:19:25.3670676Z [36;1m  fi[0m
-2026-10-19T21:19:25.3670901Z [36;1melif [[ $toolchain =~ ^stable' 'minus' '[0-9]+' 'releases?$ ]]; then[0m
-2026-10-19T21:19:25.3671288Z [36;1m  echo "toolchain=1.$((($(date +%s)/60/60/24-16569)/7/6-${toolchain//[^0-9]/}))" >> $GITHUB_OUTPUT[0m
-2026-10-19T21:19:25.3671622Z [36;1melif [[ $toolchain =~ ^1\.[0-9]+$ ]]; then[0m
-2026-10-19T21:19:25.3672009Z [36;1m  echo "toolchain=1.$((i=${toolchain#1.}, c=($(date +%s)/60/60/24-16569)/7/6, i+9*i*(10*i<=c)+90*i*(100*i<=c)))" >> $GITHUB_OUTPUT[0m
-2026-10-19T21:19:25.3672372Z [36;1melse[0m
-2026-10-19T21:19:25.3672518Z [36;1m  delimiter=EOF[0m
-2026-10-19T21:19:25.3672751Z [36;1m  while [[ $toolchain == *$delimiter* ]]; do delimiter+=_; done[0m
-2026-10-19T21:19:25.3673124Z [36;1m  printf 'toolchain<<%s\n%s\n%s\n' "$delimiter" "$toolchain" "$delimiter" >> $GITHUB_OUTPUT[0m
-2026-10-19T21:19:25.3673426Z [36;1mfi[0m
-2026-10-19T21:19:25.3687981Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
-2026-10-19T21:19:25.3688300Z env:
-2026-10-19T21:19:25.3688449Z   toolchain: stable
-2026-10-19T21:19:25.3688607Z ##[endgroup]
-2026-10-19T21:19:25.5876943Z ##[end-action id=__dtolnay_rust-toolchain.parse;outcome=success;conclusion=success;duration_ms=235]
-2026-10-19T21:19:25.5880729Z ##[start-action display=Set $CARGO_HOME;id=__dtolnay_rust-toolchain.__run]
-2026-10-19T21:19:25.5998168Z ##[group]Run echo CARGO_HOME=${CARGO_HOME:-"$USERPROFILE\.cargo"} >> $GITHUB_ENV
-2026-10-19T21:19:25.5998572Z [36;1mecho CARGO_HOME=${CARGO_HOME:-"$USERPROFILE\.cargo"} >> $GITHUB_ENV[0m
-2026-10-19T21:19:25.6008773Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
-2026-10-19T21:19:25.6009089Z ##[endgroup]
-2026-10-19T21:19:25.6333497Z ##[end-action id=__dtolnay_rust-toolchain.__run;outcome=success;conclusion=success;duration_ms=45]
-2026-10-19T21:19:25.6335668Z ##[start-action display=Install rustup if needed;id=__dtolnay_rust-toolchain.__run_2]
-2026-10-19T21:19:25.6344636Z ##[end-action id=__dtolnay_rust-toolchain.__run_2;outcome=skipped;conclusion=skipped;duration_ms=0]
-2026-10-19T21:19:25.6346359Z ##[start-action display=Install rustup if needed on windows;id=__dtolnay_rust-toolchain.__run_3]
-2026-10-19T21:19:25.6460809Z ##[group]Run if ! command -v rustup &>/dev/null; then
-2026-10-19T21:19:25.6461140Z [36;1mif ! command -v rustup &>/dev/null; then[0m
-2026-10-19T21:19:25.6461760Z [36;1m  curl --proto '=https' --tlsv1.2 --retry 10 --retry-connrefused --location --silent --show-error --fail https://win.rustup.rs/x86_64 --output 'D:\a\_temp\rustup-init.exe'[0m
-2026-10-19T21:19:25.6463849Z [36;1m  'D:\a\_temp\rustup-init.exe' --default-toolchain none --no-modify-path -y[0m
-2026-10-19T21:19:25.6464239Z [36;1m  echo "$CARGO_HOME\bin" >> $GITHUB_PATH[0m
-2026-10-19T21:19:25.6464454Z [36;1mfi[0m
-2026-10-19T21:19:25.6475577Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
-2026-10-19T21:19:25.6475879Z env:
-2026-10-19T21:19:25.6476043Z   CARGO_HOME: C:\Users\runneradmin\.cargo
-2026-10-19T21:19:25.6476244Z ##[endgroup]
-2026-10-19T21:19:25.6926559Z ##[end-action id=__dtolnay_rust-toolchain.__run_3;outcome=success;conclusion=success;duration_ms=57]
-2026-10-19T21:19:25.6940640Z ##[start-action display=rustup toolchain install stable;id=__dtolnay_rust-toolchain.__run_4]
-2026-10-19T21:19:25.7053587Z ##[group]Run set -f  # split targets and components on commas and whitespace, without glob expansion
-2026-10-19T21:19:25.7054290Z [36;1mset -f  # split targets and components on commas and whitespace, without glob expansion[0m
-2026-10-19T21:19:25.7054628Z [36;1mflags=()[0m
-2026-10-19T21:19:25.7054848Z [36;1mfor t in ${targets//,/ }; do flags+=(--target "$t"); done[0m
-2026-10-19T21:19:25.7055148Z [36;1mfor c in ${components//,/ }; do flags+=(--component "$c"); done[0m
-2026-10-19T21:19:25.7055520Z [36;1mif [[ $toolchain == nightly && -n $components ]]; then flags+=(--allow-downgrade); fi[0m
-2026-10-19T21:19:25.7055822Z [36;1mlog=$(mktemp)[0m
-2026-10-19T21:19:25.7055999Z [36;1mtrap 'rm -f "$log"' EXIT[0m
-2026-10-19T21:19:25.7056186Z [36;1mfor attempt in 1 2 3 4 5; do[0m
-2026-10-19T21:19:25.7056610Z [36;1m  if rustup toolchain install "$toolchain" "${flags[@]}" --profile minimal --no-self-update --force-non-host 2>&1 | tee "$log"; then[0m
-2026-10-19T21:19:25.7057022Z [36;1m    break[0m
-2026-10-19T21:19:25.7057281Z [36;1m  else[0m
-2026-10-19T21:19:25.7057463Z [36;1m    status=$?[0m
-2026-10-19T21:19:25.7057620Z [36;1m  fi[0m
-2026-10-19T21:19:25.7057840Z [36;1m  if [[ $attempt == 5 ]] || ! grep -Fq 'checksum failed for ' "$log" \[0m
-2026-10-19T21:19:25.7058259Z [36;1m      || ! grep -Fq 'this is likely due to an ongoing update of the official release server' "$log"; then[0m
-2026-10-19T21:19:25.7058598Z [36;1m    exit "$status"[0m
-2026-10-19T21:19:25.7058766Z [36;1m  fi[0m
-2026-10-19T21:19:25.7059034Z [36;1m  echo "Retrying rustup toolchain install in 30 seconds (retry $attempt of 4)" >&2[0m
-2026-10-19T21:19:25.7059341Z [36;1m  sleep 30[0m
-2026-10-19T21:19:25.7059490Z [36;1mdone[0m
-2026-10-19T21:19:25.7070919Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
-2026-10-19T21:19:25.7071231Z env:
-2026-10-19T21:19:25.7071395Z   CARGO_HOME: C:\Users\runneradmin\.cargo
-2026-10-19T21:19:25.7071604Z   toolchain: stable
-2026-10-19T21:19:25.7071753Z   targets: 
-2026-10-19T21:19:25.7071921Z   components: rustfmt, clippy
-2026-10-19T21:19:25.7072107Z   RUSTUP_PERMIT_COPY_RENAME: 1
-2026-10-19T21:19:25.7072280Z ##[endgroup]
-2026-10-19T21:19:30.9823065Z info: syncing channel updates for stable-x86_64-pc-windows-msvc
-2026-10-19T21:19:31.7885382Z info: latest update on 2026-10-15 for version 1.99.1 (58cf8f9c3 2026-10-13)
-2026-10-19T21:19:31.8517035Z info: removing previous version of component rustfmt
-2026-10-19T21:19:31.9465586Z info: removing previous version of component clippy
-2026-10-19T21:19:31.9623405Z info: removing previous version of component rust-std for target x86_64-pc-windows-gnu
-2026-10-19T21:19:32.4996734Z info: removing previous version of component rust-std for target i686-pc-windows-msvc
-2026-10-19T21:19:32.7681720Z info: removing previous version of component cargo
-2026-10-19T21:19:33.0048647Z info: removing previous version of component rust-std
-2026-10-19T21:19:33.3688303Z info: removing previous version of component rustc
-2026-10-19T21:19:33.5268750Z info: downloading 7 components
-2026-10-19T21:19:45.1525205Z 
-2026-10-19T21:19:47.6043146Z   stable-x86_64-pc-windows-msvc updated - rustc 1.99.1 (58cf8f9c3 2026-10-13) (from rustc 1.99.0 (b940084d7 2026-09-28))
-2026-10-19T21:19:47.6043697Z 
-2026-10-19T21:19:47.6367816Z ##[end-action id=__dtolnay_rust-toolchain.__run_4;outcome=success;conclusion=success;duration_ms=21942]
-2026-10-19T21:19:47.6373924Z ##[start-action display=rustup default stable;id=__dtolnay_rust-toolchain.__run_5]
-2026-10-19T21:19:47.6488115Z ##[group]Run rustup default "$toolchain" --force-non-host
-2026-10-19T21:19:47.6488428Z [36;1mrustup default "$toolchain" --force-non-host[0m
-2026-10-19T21:19:47.6499923Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
-2026-10-19T21:19:47.6500228Z env:
-2026-10-19T21:19:47.6500389Z   CARGO_HOME: C:\Users\runneradmin\.cargo
-2026-10-19T21:19:47.6500600Z   toolchain: stable
-2026-10-19T21:19:47.6500746Z ##[endgroup]
-2026-10-19T21:19:47.7088356Z info: using existing install for stable-x86_64-pc-windows-msvc
-2026-10-19T21:19:47.7199347Z info: default toolchain set to stable-x86_64-pc-windows-msvc
-2026-10-19T21:19:47.7201549Z 
-2026-10-19T21:19:47.7392087Z   stable-x86_64-pc-windows-msvc unchanged - rustc 1.99.1 (58cf8f9c3 2026-10-13)
-2026-10-19T21:19:47.7392394Z 
-2026-10-19T21:19:47.7460581Z ##[end-action id=__dtolnay_rust-toolchain.__run_5;outcome=success;conclusion=success;duration_ms=108]
-2026-10-19T21:19:47.7463805Z ##[start-action display=Create cachekey;id=__dtolnay_rust-toolchain.rustc-version]
-2026-10-19T21:19:47.7567154Z ##[group]Run DATE=$(rustc +"$toolchain" --version --verbose | sed -ne 's/^commit-date: \(20[0-9][0-9]\)-\([01][0-9]\)-\([0-3][0-9]\)$/\1\2\3/p')
-2026-10-19T21:19:47.7567792Z [36;1mDATE=$(rustc +"$toolchain" --version --verbose | sed -ne 's/^commit-date: \(20[0-9][0-9]\)-\([01][0-9]\)-\([0-3][0-9]\)$/\1\2\3/p')[0m
-2026-10-19T21:19:47.7568292Z [36;1mHASH=$(rustc +"$toolchain" --version --verbose | sed -ne 's/^commit-hash: //p')[0m
-2026-10-19T21:19:47.7568700Z [36;1mecho "cachekey=$(echo $DATE$HASH | head -c12)" >> $GITHUB_OUTPUT[0m
-2026-10-19T21:19:47.7578617Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
-2026-10-19T21:19:47.7578917Z env:
-2026-10-19T21:19:47.7579088Z   CARGO_HOME: C:\Users\runneradmin\.cargo
-2026-10-19T21:19:47.7579288Z   toolchain: stable
-2026-10-19T21:19:47.7579435Z ##[endgroup]
-2026-10-19T21:19:48.7773127Z ##[end-action id=__dtolnay_rust-toolchain.rustc-version;outcome=success;conclusion=success;duration_ms=1030]
-2026-10-19T21:19:48.7775265Z ##[start-action display=Disable incremental compilation;id=__dtolnay_rust-toolchain.__run_6]
-2026-10-19T21:19:48.7892760Z ##[group]Run if [ -z "${CARGO_INCREMENTAL+set}" ]; then
-2026-10-19T21:19:48.7893236Z [36;1mif [ -z "${CARGO_INCREMENTAL+set}" ]; then[0m
-2026-10-19T21:19:48.7893645Z [36;1m  echo CARGO_INCREMENTAL=0 >> $GITHUB_ENV[0m
-2026-10-19T21:19:48.7893986Z [36;1mfi[0m
-2026-10-19T21:19:48.7909238Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
-2026-10-19T21:19:48.7909741Z env:
-2026-10-19T21:19:48.7909989Z   CARGO_HOME: C:\Users\runneradmin\.cargo
-2026-10-19T21:19:48.7910280Z ##[endgroup]
-2026-10-19T21:19:48.8257807Z ##[end-action id=__dtolnay_rust-toolchain.__run_6;outcome=success;conclusion=success;duration_ms=48]
-2026-10-19T21:19:48.8259994Z ##[start-action display=Enable colors in Cargo output;id=__dtolnay_rust-toolchain.__run_7]
-2026-10-19T21:19:48.8366554Z ##[group]Run if [ -z "${CARGO_TERM_COLOR+set}" ]; then
-2026-10-19T21:19:48.8366854Z [36;1mif [ -z "${CARGO_TERM_COLOR+set}" ]; then[0m
-2026-10-19T21:19:48.8367107Z [36;1m  echo CARGO_TERM_COLOR=always >> $GITHUB_ENV[0m
-2026-10-19T21:19:48.8367326Z [36;1mfi[0m
-2026-10-19T21:19:48.8377610Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
-2026-10-19T21:19:48.8377915Z env:
-2026-10-19T21:19:48.8378075Z   CARGO_HOME: C:\Users\runneradmin\.cargo
-2026-10-19T21:19:48.8378282Z   CARGO_INCREMENTAL: 0
-2026-10-19T21:19:48.8378457Z ##[endgroup]
-2026-10-19T21:19:48.8715030Z ##[end-action id=__dtolnay_rust-toolchain.__run_7;outcome=success;conclusion=success;duration_ms=45]
-2026-10-19T21:19:48.8718933Z ##[start-action display=Enable Cargo sparse registry;id=__dtolnay_rust-toolchain.__run_8]
-2026-10-19T21:19:48.8836976Z ##[group]Run # implemented in 1.66, stabilized in 1.68, made default in 1.70
-2026-10-19T21:19:48.8837677Z [36;1m# implemented in 1.66, stabilized in 1.68, made default in 1.70[0m
-2026-10-19T21:19:48.8838499Z [36;1mif [ -z "${CARGO_REGISTRIES_CRATES_IO_PROTOCOL+set}" -o -f "D:\a\_temp"/.implicit_cargo_registries_crates_io_protocol ]; then[0m
-2026-10-19T21:19:48.8839363Z [36;1m  if rustc +"$toolchain" --version --verbose | grep -q '^release: 1\.6[89]\.'; then[0m
-2026-10-19T21:19:48.8840036Z [36;1m    touch "D:\a\_temp"/.implicit_cargo_registries_crates_io_protocol || true[0m
-2026-10-19T21:19:48.8840655Z [36;1m    echo CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse >> $GITHUB_ENV[0m
-2026-10-19T21:19:48.8842316Z [36;1m  elif rustc +"$toolchain" --version --verbose | grep -q '^release: 1\.6[67]\.'; then[0m
-2026-10-19T21:19:48.8843009Z [36;1m    touch "D:\a\_temp"/.implicit_cargo_registries_crates_io_protocol || true[0m
-2026-10-19T21:19:48.8843598Z [36;1m    echo CARGO_REGISTRIES_CRATES_IO_PROTOCOL=git >> $GITHUB_ENV[0m
-2026-10-19T21:19:48.8844021Z [36;1m  fi[0m
-2026-10-19T21:19:48.8844245Z [36;1mfi[0m
-2026-10-19T21:19:48.8861665Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
-2026-10-19T21:19:48.8862127Z env:
-2026-10-19T21:19:48.8862356Z   CARGO_HOME: C:\Users\runneradmin\.cargo
-2026-10-19T21:19:48.8862678Z   CARGO_INCREMENTAL: 0
-2026-10-19T21:19:48.8862922Z   CARGO_TERM_COLOR: always
-2026-10-19T21:19:48.8863181Z   toolchain: stable
-2026-10-19T21:19:48.8863397Z ##[endgroup]
-2026-10-19T21:19:49.0807816Z ##[end-action id=__dtolnay_rust-toolchain.__run_8;outcome=success;conclusion=success;duration_ms=208]
-2026-10-19T21:19:49.0811274Z ##[start-action display=Work around spurious network errors in curl 8.0;id=__dtolnay_rust-toolchain.__run_9]
-2026-10-19T21:19:49.0921025Z ##[group]Run # https://rust-lang.zulipchat.com/#narrow/stream/246057-t-cargo/topic/timeout.20investigation
-2026-10-19T21:19:49.0921607Z [36;1m# https://rust-lang.zulipchat.com/#narrow/stream/246057-t-cargo/topic/timeout.20investigation[0m
-2026-10-19T21:19:49.0922111Z [36;1mif rustc +"$toolchain" --version --verbose | grep -q '^release: 1\.7[01]\.'; then[0m
-2026-10-19T21:19:49.0922464Z [36;1m  echo CARGO_HTTP_MULTIPLEXING=false >> $GITHUB_ENV[0m
-2026-10-19T21:19:49.0922689Z [36;1mfi[0m
-2026-10-19T21:19:49.0933322Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
-2026-10-19T21:19:49.0933625Z env:
-2026-10-19T21:19:49.0933779Z   CARGO_HOME: C:\Users\runneradmin\.cargo
-2026-10-19T21:19:49.0933987Z   CARGO_INCREMENTAL: 0
-2026-10-19T21:19:49.0934146Z   CARGO_TERM_COLOR: always
-2026-10-19T21:19:49.0934307Z   toolchain: stable
-2026-10-19T21:19:49.0934468Z ##[endgroup]
-2026-10-19T21:19:49.1751072Z ##[end-action id=__dtolnay_rust-toolchain.__run_9;outcome=success;conclusion=success;duration_ms=93]
-2026-10-19T21:19:49.1754937Z ##[start-action display=rustc +stable --version --verbose;id=__dtolnay_rust-toolchain.__run_10]
-2026-10-19T21:19:49.1860592Z ##[group]Run rustc +"$toolchain" --version --verbose
-2026-10-19T21:19:49.1861035Z [36;1mrustc +"$toolchain" --version --verbose[0m
-2026-10-19T21:19:49.1872277Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
-2026-10-19T21:19:49.1872573Z env:
-2026-10-19T21:19:49.1872728Z   CARGO_HOME: C:\Users\runneradmin\.cargo
-2026-10-19T21:19:49.1872931Z   CARGO_INCREMENTAL: 0
-2026-10-19T21:19:49.1873093Z   CARGO_TERM_COLOR: always
-2026-10-19T21:19:49.1873254Z   toolchain: stable
-2026-10-19T21:19:49.1873402Z ##[endgroup]
-2026-10-19T21:19:49.2574617Z rustc 1.99.1 (58cf8f9c3 2026-10-13)
-2026-10-19T21:19:49.2574968Z binary: rustc
-2026-10-19T21:19:49.2575281Z commit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67
-2026-10-19T21:19:49.2575511Z commit-date: 2026-10-13
-2026-10-19T21:19:49.2575702Z host: x86_64-pc-windows-msvc
-2026-10-19T21:19:49.2575880Z release: 1.99.1
-2026-10-19T21:19:49.2576963Z LLVM version: 23.1.1
-2026-10-19T21:19:49.2681552Z ##[end-action id=__dtolnay_rust-toolchain.__run_10;outcome=success;conclusion=success;duration_ms=92]
-2026-10-19T21:19:49.2866917Z ##[group]Run Swatinem/rust-cache@v2
-2026-10-19T21:19:49.2867170Z with:
-2026-10-19T21:19:49.2867323Z   workspaces: src-tauri
-2026-10-19T21:19:49.2867495Z   prefix-key: v0-rust
-2026-10-19T21:19:49.2867654Z   add-job-id-key: true
-2026-10-19T21:19:49.2867824Z   add-rust-environment-hash-key: true
-2026-10-19T21:19:49.2868019Z   cache-targets: true
-2026-10-19T21:19:49.2868171Z   cache-all-crates: false
-2026-10-19T21:19:49.2868340Z   cache-workspace-crates: false
-2026-10-19T21:19:49.2868513Z   save-if: true
-2026-10-19T21:19:49.2868667Z   cache-provider: github
-2026-10-19T21:19:49.2869020Z   cache-bin: true
-2026-10-19T21:19:49.2869163Z   lookup-only: false
-2026-10-19T21:19:49.2869313Z   cmd-format: {0}
-2026-10-19T21:19:49.2869455Z env:
-2026-10-19T21:19:49.2869602Z   CARGO_HOME: C:\Users\runneradmin\.cargo
-2026-10-19T21:19:49.2869795Z   CARGO_INCREMENTAL: 0
-2026-10-19T21:19:49.2869949Z   CARGO_TERM_COLOR: always
-2026-10-19T21:19:49.2870105Z ##[endgroup]
-2026-10-19T21:19:50.5525156Z ##[group]Cache Configuration
-2026-10-19T21:19:50.5525515Z Cache Provider:
-2026-10-19T21:19:50.5525748Z     github
-2026-10-19T21:19:50.5525942Z Workspaces:
-2026-10-19T21:19:50.5526186Z     D:\a\Portify\Portify\src-tauri
-2026-10-19T21:19:50.5526449Z Cache Paths:
-2026-10-19T21:19:50.5526657Z     C:\Users\runneradmin\.cargo\bin
-2026-10-19T21:19:50.5527195Z     C:\Users\runneradmin\.cargo\.crates.toml
-2026-10-19T21:19:50.5527543Z     C:\Users\runneradmin\.cargo\.crates2.json
-2026-10-19T21:19:50.5527891Z     C:\Users\runneradmin\.cargo\registry
-2026-10-19T21:19:50.5528234Z     C:\Users\runneradmin\.cargo\git
-2026-10-19T21:19:50.5529523Z     D:\a\Portify\Portify\src-tauri\target
-2026-10-19T21:19:50.5529907Z Restore Key:
-2026-10-19T21:19:50.5530159Z     v0-rust-rust-Windows_NT-x64-e70cdc14
-2026-10-19T21:19:50.5530468Z Cache Key:
-2026-10-19T21:19:50.5530707Z     v0-rust-rust-Windows_NT-x64-e70cdc14-687330a7
-2026-10-19T21:19:50.5531039Z .. Prefix:
-2026-10-19T21:19:50.5531275Z   - v0-rust-rust-Windows_NT-x64
-2026-10-19T21:19:50.5531565Z .. Environment considered:
-2026-10-19T21:19:50.5531815Z   - Rust Versions:
-2026-10-19T21:19:50.5532189Z     - 1.99.1 x86_64-pc-windows-msvc 58cf8f9c35b355199727627d07ae34a4e2846d67
-2026-10-19T21:19:50.5532579Z   - CARGO_HOME
-2026-10-19T21:19:50.5532789Z   - CARGO_INCREMENTAL
-2026-10-19T21:19:50.5533327Z   - CARGO_TERM_COLOR
-2026-10-19T21:19:50.5533569Z .. Lockfiles considered:
-2026-10-19T21:19:50.5533850Z   - D:\a\Portify\Portify\src-tauri\Cargo.lock
-2026-10-19T21:19:50.5534187Z   - D:\a\Portify\Portify\src-tauri\Cargo.toml
-2026-10-19T21:19:50.5534671Z ##[endgroup]
-2026-10-19T21:19:50.5534801Z 
-2026-10-19T21:19:50.5534901Z ... Restoring cache ...
-2026-10-19T21:19:50.8827096Z Cache hit for restore-key: v0-rust-rust-Windows_NT-x64-e70cdc14-2f085d4e
-2026-10-19T21:19:52.1351593Z Received 71303168 of 789088737 (9.0%), 67.5 MBs/sec
-2026-10-19T21:19:53.4421034Z Received 134217728 of 789088737 (17.0%), 55.2 MBs/sec
-2026-10-19T21:19:54.7207012Z Received 268435456 of 789088737 (34.0%), 71.2 MBs/sec
-2026-10-19T21:19:55.7215751Z Received 398458880 of 789088737 (50.5%), 82.7 MBs/sec
-2026-10-19T21:19:56.7224361Z Received 482344960 of 789088737 (61.1%), 82.2 MBs/sec
-2026-10-19T21:19:57.7295833Z Received 574619648 of 789088737 (72.8%), 83.0 MBs/sec
-2026-10-19T21:19:58.7309419Z Received 671088640 of 789088737 (85.0%), 84.2 MBs/sec
-2026-10-19T21:19:59.9324675Z Received 789088737 of 789088737 (100.0%), 85.4 MBs/sec
-2026-10-19T21:19:59.9327315Z Cache Size: ~753 MB (789088737 B)
-2026-10-19T21:19:59.9357362Z [command]"C:\Program Files\Git\usr\bin\tar.exe" -xf D:/a/_temp/50daba21-f36c-4013-9df9-f83f4154f21e/cache.tzst -P -C D:/a/Portify/Portify --force-local --use-compress-program "zstd -d"
-2026-10-19T21:20:17.2131953Z Cache restored successfully
-2026-10-19T21:20:17.2502992Z Restored from cache key "v0-rust-rust-Windows_NT-x64-e70cdc14-2f085d4e" full match: false.
-2026-10-19T21:20:17.2766281Z ##[group]Run cargo test --manifest-path src-tauri/Cargo.toml
-2026-10-19T21:20:17.2766859Z [36;1mcargo test --manifest-path src-tauri/Cargo.toml[0m
-2026-10-19T21:20:17.4502279Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
-2026-10-19T21:20:17.4502559Z env:
-2026-10-19T21:20:17.4502722Z   CARGO_HOME: C:\Users\runneradmin\.cargo
-2026-10-19T21:20:17.4502937Z   CARGO_INCREMENTAL: 0
-2026-10-19T21:20:17.4503105Z   CARGO_TERM_COLOR: always
-2026-10-19T21:20:17.4503281Z   CACHE_ON_FAILURE: false
-2026-10-19T21:20:17.4503447Z ##[endgroup]
-2026-10-19T21:20:17.8484301Z [1m[92m    Updating[0m crates.io index
-2026-10-19T21:20:34.7014416Z [1m[92m   Compiling[0m portify v0.1.0 (D:\a\Portify\Portify\src-tauri)
-2026-10-19T21:20:39.2800943Z [1m[93mwarning[0m[1m[97m: unused imports: `Protocol` and `TransportType`[0m
-2026-10-19T21:20:39.2802143Z  [1m[96m--> [0msrc\config.rs:1:26
-2026-10-19T21:20:39.2802656Z   [1m[96m|[0m
-2026-10-19T21:20:39.2809359Z [1m[96m1[0m [1m[96m|[0m use crate::nodes::{Node, Protocol, TransportType};
-2026-10-19T21:20:39.2811126Z   [1m[96m|[0m                          [1m[93m^^^^^^^^[0m  [1m[93m^^^^^^^^^^^^^[0m
-2026-10-19T21:20:39.2811913Z   [1m[96m|[0m
-2026-10-19T21:20:39.2813433Z   [1m[96m= [0m[1m[97mnote[0m: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
-2026-10-19T21:20:39.2813997Z 
-2026-10-19T21:20:39.9955632Z [1m[93mwarning[0m[1m[97m: unused variable: `transport`[0m
-2026-10-19T21:20:39.9956492Z    [1m[96m--> [0msrc\config.rs:302:17
-2026-10-19T21:20:39.9956949Z     [1m[96m|[0m
-2026-10-19T21:20:39.9957365Z [1m[96m302[0m [1m[96m|[0m             let transport = match expected {
-2026-10-19T21:20:39.9958292Z     [1m[96m|[0m                 [1m[93m^^^^^^^^^[0m [1m[93mhelp: if this is intentional, prefix it with an underscore: `_transport`[0m
-2026-10-19T21:20:39.9958928Z     [1m[96m|[0m
-2026-10-19T21:20:39.9959538Z     [1m[96m= [0m[1m[97mnote[0m: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
-2026-10-19T21:20:39.9959965Z 
-2026-10-19T21:20:43.2201399Z [1m[93mwarning[0m: `portify` (lib test) generated 1 warning (run `cargo fix --lib -p portify --tests` to apply 1 suggestion)
-2026-10-19T21:20:50.4622587Z [1m[93mwarning[0m: `portify` (lib) generated 1 warning (run `cargo fix --lib -p portify` to apply 1 suggestion)
-2026-10-19T21:20:51.4805213Z [1m[92m    Finished[0m `test` profile [unoptimized + debuginfo] target(s) in 33.70s
-2026-10-19T21:20:51.5074800Z [1m[92m     Running[0m unittests src\lib.rs (src-tauri\target\debug\deps\portify_lib-f1d8106af22f8ef2.exe)
-2026-10-19T21:20:51.5162184Z 
-2026-10-19T21:20:51.5162568Z running 56 tests
-2026-10-19T21:20:51.5174322Z test config::tests::config_includes_dns_and_log_blocks ... FAILED
-2026-10-19T21:20:51.5174999Z test config::tests::allocates_nominal_ports ... FAILED
-2026-10-19T21:20:51.5179545Z test config::tests::builds_inbounds_outbounds_and_rules_per_node ... FAILED
-2026-10-19T21:20:51.5180148Z test config::tests::config_omits_disabled_nodes ... FAILED
-2026-10-19T21:20:51.5180655Z test config::tests::disabled_nodes_do_not_consume_ports ... FAILED
-2026-10-19T21:20:51.5181240Z test config::tests::enabled_nodes_exceeding_port_range_is_an_error ... FAILED
-2026-10-19T21:20:51.5182024Z test config::tests::grpc_transport_uses_service_name ... FAILED
-2026-10-19T21:20:51.5184229Z test config::tests::inbound_ports_match_the_plan ... FAILED
-2026-10-19T21:20:51.5184792Z test config::tests::node_tags_follow_the_configured_index ... FAILED
-2026-10-19T21:20:51.5185588Z test config::tests::overlapping_port_ranges_are_rejected ... FAILED
-2026-10-19T21:20:51.5186116Z test config::tests::port_start_beyond_65535_is_an_error ... ok
-2026-10-19T21:20:51.5187936Z test config::tests::shadowsocks_outbound_carries_method_and_password ... FAILED
-2026-10-19T21:20:51.5188586Z test config::tests::shadowsocks_plugin_is_emitted ... FAILED
-2026-10-19T21:20:51.5193514Z test config::tests::transport_tcp_produces_no_transport_block ... ok
-2026-10-19T21:20:51.5194458Z test config::tests::transport_types_map_to_singbox_names ... FAILED
-2026-10-19T21:20:51.5194955Z test config::tests::vless_alpn_is_an_array ... FAILED
-2026-10-19T21:20:51.5195553Z test config::tests::vless_flow_is_emitted ... FAILED
-2026-10-19T21:20:51.5196443Z test config::tests::vless_insecure_sets_tls_insecure ... FAILED
-2026-10-19T21:20:51.5197470Z test config::tests::vless_outbound_carries_tls_and_transport ... FAILED
-2026-10-19T21:20:51.5198198Z test config::tests::vless_reality_outbound_carries_the_reality_block ... FAILED
-2026-10-19T21:20:51.5199277Z test config::tests::vless_params_survive_a_serde_round_trip ... ok
-2026-10-19T21:20:51.5200231Z test nodes::tests::import_links_deduplicates_within_the_same_batch ... ok
-2026-10-19T21:20:51.5201295Z test nodes::tests::import_links_ignores_blank_lines ... ok
-2026-10-19T21:20:51.5202690Z test nodes::tests::import_links_reports_line_numbers ... ok
-2026-10-19T21:20:51.5203390Z test nodes::tests::is_duplicate_ignores_name ... ok
-2026-10-19T21:20:51.5204274Z test nodes::tests::importing_the_same_link_twice_is_a_duplicate ... ok
-2026-10-19T21:20:51.5205062Z test nodes::tests::is_duplicate_matches_same_uuid_host_port ... ok
-2026-10-19T21:20:51.5205544Z test nodes::tests::is_not_duplicate_for_different_uuid ... ok
-2026-10-19T21:20:51.5205986Z test nodes::tests::parses_minimal_vless ... ok
-2026-10-19T21:20:51.5206503Z test nodes::tests::parses_ss_fully_encoded_payload ... ok
-2026-10-19T21:20:51.5206924Z test nodes::tests::parses_ss_sip002_with_userinfo ... ok
-2026-10-19T21:20:51.5207340Z test nodes::tests::parses_ss_urlencoded_password ... ok
-2026-10-19T21:20:51.5207741Z test nodes::tests::parses_ss_with_plugin ... ok
-2026-10-19T21:20:51.5210087Z test nodes::tests::parses_vless_allow_insecure ... ok
-2026-10-19T21:20:51.5210926Z test nodes::tests::parses_vless_reality_and_flow ... ok
-2026-10-19T21:20:51.5211384Z test nodes::tests::parses_vless_with_grpc_transport ... ok
-2026-10-19T21:20:51.5211869Z test nodes::tests::parses_vless_with_http_transport ... ok
-2026-10-19T21:20:51.5215703Z test nodes::tests::parses_vless_with_httpupgrade_transport ... ok
-2026-10-19T21:20:51.5216247Z test nodes::tests::parses_vless_with_tls_and_sni ... ok
-2026-10-19T21:20:51.5216723Z test nodes::tests::parses_vless_with_ws_transport ... ok
-2026-10-19T21:20:51.5217242Z test nodes::tests::reality_short_id_longer_than_16_chars_is_rejected ... ok
-2026-10-19T21:20:51.5219289Z test nodes::tests::reality_short_id_with_non_hex_is_rejected ... ok
-2026-10-19T21:20:51.5219816Z test nodes::tests::rejects_ss_with_bad_base64 ... ok
-2026-10-19T21:20:51.5220834Z test nodes::tests::rejects_non_proxy_scheme ... ok
-2026-10-19T21:20:51.5221474Z test nodes::tests::reality_short_id_with_odd_length_is_rejected ... ok
-2026-10-19T21:20:51.5223001Z test nodes::tests::rejects_ss_with_unsupported_cipher ... ok
-2026-10-19T21:20:51.5223677Z test nodes::tests::rejects_vless_reality_with_bad_pbk ... ok
-2026-10-19T21:20:51.5224656Z test nodes::tests::rejects_vless_reality_with_non_base64url_pbk ... ok
-2026-10-19T21:20:51.5225321Z test nodes::tests::rejects_vless_reality_without_pbk ... ok
-2026-10-19T21:20:51.5226413Z test nodes::tests::rejects_vless_with_bad_port ... ok
-2026-10-19T21:20:51.5226966Z test nodes::tests::rejects_vless_with_bad_uuid ... ok
-2026-10-19T21:20:51.5228381Z test nodes::tests::rejects_vless_with_encryption_set ... ok
-2026-10-19T21:20:51.5229221Z test nodes::tests::rejects_vless_with_missing_host ... ok
-2026-10-19T21:20:51.5229701Z test nodes::tests::ss2022_correct_key_length_is_accepted ... ok
-2026-10-19T21:20:51.5230217Z test nodes::tests::ss2022_non_base64_password_is_rejected ... ok
-2026-10-19T21:20:51.5230744Z test nodes::tests::ss2022_wrong_key_length_is_rejected ... ok
-2026-10-19T21:20:51.5231021Z 
-2026-10-19T21:20:51.5231116Z failures:
-2026-10-19T21:20:51.5231236Z 
-2026-10-19T21:20:51.5231482Z ---- config::tests::config_includes_dns_and_log_blocks stdout ----
-2026-10-19T21:20:51.5232522Z 
-2026-10-19T21:20:51.5232945Z thread 'config::tests::config_includes_dns_and_log_blocks' (8688) panicked at src\config.rs:247:62:
-2026-10-19T21:20:51.5233761Z called `Result::unwrap()` on an `Err` value: "not implemented"
-2026-10-19T21:20:51.5234538Z note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
-2026-10-19T21:20:51.5234894Z 
-2026-10-19T21:20:51.5235063Z ---- config::tests::allocates_nominal_ports stdout ----
-2026-10-19T21:20:51.5235377Z 
-2026-10-19T21:20:51.5235643Z thread 'config::tests::allocates_nominal_ports' (2632) panicked at src\config.rs:64:62:
-2026-10-19T21:20:51.5236251Z called `Result::unwrap()` on an `Err` value: "not implemented"
-2026-10-19T21:20:51.5237071Z 
-2026-10-19T21:20:51.5237242Z ---- config::tests::builds_inbounds_outbounds_and_rules_per_node stdout ----
-2026-10-19T21:20:51.5237479Z 
-2026-10-19T21:20:51.5237711Z thread 'config::tests::builds_inbounds_outbounds_and_rules_per_node' (8684) panicked at src\config.rs:110:62:
-2026-10-19T21:20:51.5238166Z called `Result::unwrap()` on an `Err` value: "not implemented"
-2026-10-19T21:20:51.5238353Z 
-2026-10-19T21:20:51.5238475Z ---- config::tests::config_omits_disabled_nodes stdout ----
-2026-10-19T21:20:51.5238659Z 
-2026-10-19T21:20:51.5238835Z thread 'config::tests::config_omits_disabled_nodes' (392) panicked at src\config.rs:261:79:
-2026-10-19T21:20:51.5239245Z called `Result::unwrap()` on an `Err` value: "not implemented"
-2026-10-19T21:20:51.5239434Z 
-2026-10-19T21:20:51.5239572Z ---- config::tests::disabled_nodes_do_not_consume_ports stdout ----
-2026-10-19T21:20:51.5239764Z 
-2026-10-19T21:20:51.5239965Z thread 'config::tests::disabled_nodes_do_not_consume_ports' (1844) panicked at src\config.rs:93:66:
-2026-10-19T21:20:51.5240356Z called `Result::unwrap()` on an `Err` value: "not implemented"
-2026-10-19T21:20:51.5240541Z 
-2026-10-19T21:20:51.5240700Z ---- config::tests::enabled_nodes_exceeding_port_range_is_an_error stdout ----
-2026-10-19T21:20:51.5241000Z 
-2026-10-19T21:20:51.5241275Z thread 'config::tests::enabled_nodes_exceeding_port_range_is_an_error' (1876) panicked at src\config.rs:75:9:
-2026-10-19T21:20:51.5241667Z error should name the node count: not implemented
-2026-10-19T21:20:51.5241834Z 
-2026-10-19T21:20:51.5241988Z ---- config::tests::grpc_transport_uses_service_name stdout ----
-2026-10-19T21:20:51.5242281Z 
-2026-10-19T21:20:51.5242535Z thread 'config::tests::grpc_transport_uses_service_name' (9196) panicked at src\config.rs:240:9:
-2026-10-19T21:20:51.5242874Z assertion `left == right` failed
-2026-10-19T21:20:51.5243052Z   left: Null
-2026-10-19T21:20:51.5243201Z  right: "grpc"
-2026-10-19T21:20:51.5243285Z 
-2026-10-19T21:20:51.5243407Z ---- config::tests::inbound_ports_match_the_plan stdout ----
-2026-10-19T21:20:51.5243586Z 
-2026-10-19T21:20:51.5243772Z thread 'config::tests::inbound_ports_match_the_plan' (1728) panicked at src\config.rs:129:62:
-2026-10-19T21:20:51.5244139Z called `Result::unwrap()` on an `Err` value: "not implemented"
-2026-10-19T21:20:51.5244323Z 
-2026-10-19T21:20:51.5244460Z ---- config::tests::node_tags_follow_the_configured_index stdout ----
-2026-10-19T21:20:51.5244652Z 
-2026-10-19T21:20:51.5244862Z thread 'config::tests::node_tags_follow_the_configured_index' (9948) panicked at src\config.rs:274:62:
-2026-10-19T21:20:51.5245320Z called `Result::unwrap()` on an `Err` value: "not implemented"
-2026-10-19T21:20:51.5246105Z 
-2026-10-19T21:20:51.5246271Z ---- config::tests::overlapping_port_ranges_are_rejected stdout ----
-2026-10-19T21:20:51.5246483Z 
-2026-10-19T21:20:51.5246698Z thread 'config::tests::overlapping_port_ranges_are_rejected' (9936) panicked at src\config.rs:83:9:
-2026-10-19T21:20:51.5247051Z unexpected error: not implemented
-2026-10-19T21:20:51.5247190Z 
-2026-10-19T21:20:51.5247350Z ---- config::tests::shadowsocks_outbound_carries_method_and_password stdout ----
-2026-10-19T21:20:51.5247584Z 
-2026-10-19T21:20:51.5247953Z thread 'config::tests::shadowsocks_outbound_carries_method_and_password' (7384) panicked at src\config.rs:213:9:
-2026-10-19T21:20:51.5248341Z assertion `left == right` failed
-2026-10-19T21:20:51.5248526Z   left: Null
-2026-10-19T21:20:51.5248671Z  right: "shadowsocks"
-2026-10-19T21:20:51.5248778Z 
-2026-10-19T21:20:51.5248902Z ---- config::tests::shadowsocks_plugin_is_emitted stdout ----
-2026-10-19T21:20:51.5249081Z 
-2026-10-19T21:20:51.5249269Z thread 'config::tests::shadowsocks_plugin_is_emitted' (2372) panicked at src\config.rs:228:9:
-2026-10-19T21:20:51.5249594Z assertion `left == right` failed
-2026-10-19T21:20:51.5249773Z   left: Null
-2026-10-19T21:20:51.5249914Z  right: "obfs-local"
-2026-10-19T21:20:51.5250010Z 
-2026-10-19T21:20:51.5250150Z ---- config::tests::transport_types_map_to_singbox_names stdout ----
-2026-10-19T21:20:51.5250426Z 
-2026-10-19T21:20:51.5250633Z thread 'config::tests::transport_types_map_to_singbox_names' (1880) panicked at src\config.rs:311:13:
-2026-10-19T21:20:51.5250977Z assertion `left == right` failed
-2026-10-19T21:20:51.5251153Z   left: true
-2026-10-19T21:20:51.5251286Z  right: false
-2026-10-19T21:20:51.5251368Z 
-2026-10-19T21:20:51.5251462Z ---- config::tests::vless_alpn_is_an_array stdout ----
-2026-10-19T21:20:51.5251630Z 
-2026-10-19T21:20:51.5251790Z thread 'config::tests::vless_alpn_is_an_array' (4316) panicked at src\config.rs:206:9:
-2026-10-19T21:20:51.5252091Z assertion `left == right` failed
-2026-10-19T21:20:51.5252261Z   left: Null
-2026-10-19T21:20:51.5252436Z  right: Array [String("h2"), String("http/1.1")]
-2026-10-19T21:20:51.5252590Z 
-2026-10-19T21:20:51.5252688Z ---- config::tests::vless_flow_is_emitted stdout ----
-2026-10-19T21:20:51.5252843Z 
-2026-10-19T21:20:51.5253001Z thread 'config::tests::vless_flow_is_emitted' (3680) panicked at src\config.rs:184:9:
-2026-10-19T21:20:51.5253293Z assertion `left == right` failed
-2026-10-19T21:20:51.5253526Z   left: Null
-2026-10-19T21:20:51.5253717Z  right: "xtls-rprx-vision"
-2026-10-19T21:20:51.5253826Z 
-2026-10-19T21:20:51.5253944Z ---- config::tests::vless_insecure_sets_tls_insecure stdout ----
-2026-10-19T21:20:51.5254133Z 
-2026-10-19T21:20:51.5254315Z thread 'config::tests::vless_insecure_sets_tls_insecure' (4156) panicked at src\config.rs:195:9:
-2026-10-19T21:20:51.5254861Z assertion `left == right` failed
-2026-10-19T21:20:51.5255036Z   left: Null
-2026-10-19T21:20:51.5255165Z  right: true
-2026-10-19T21:20:51.5255245Z 
-2026-10-19T21:20:51.5255441Z ---- config::tests::vless_outbound_carries_tls_and_transport stdout ----
-2026-10-19T21:20:51.5255701Z 
-2026-10-19T21:20:51.5255980Z thread 'config::tests::vless_outbound_carries_tls_and_transport' (1388) panicked at src\config.rs:149:9:
-2026-10-19T21:20:51.5256388Z assertion `left == right` failed
-2026-10-19T21:20:51.5256967Z   left: Null
-2026-10-19T21:20:51.5257193Z  right: "vless"
-2026-10-19T21:20:51.5257335Z 
-2026-10-19T21:20:51.5257599Z ---- config::tests::vless_reality_outbound_carries_the_reality_block stdout ----
-2026-10-19T21:20:51.5257994Z 
-2026-10-19T21:20:51.5258398Z thread 'config::tests::vless_reality_outbound_carries_the_reality_block' (1396) panicked at src\config.rs:169:9:
-2026-10-19T21:20:51.5259456Z assertion `left == right` failed
-2026-10-19T21:20:51.5259834Z   left: Null
-2026-10-19T21:20:51.5260019Z  right: true
-2026-10-19T21:20:51.5260122Z 
-2026-10-19T21:20:51.5260126Z 
-2026-10-19T21:20:51.5260205Z failures:
-2026-10-19T21:20:51.5260417Z     config::tests::allocates_nominal_ports
-2026-10-19T21:20:51.5260793Z     config::tests::builds_inbounds_outbounds_and_rules_per_node
-2026-10-19T21:20:51.5261162Z     config::tests::config_includes_dns_and_log_blocks
-2026-10-19T21:20:51.5261405Z     config::tests::config_omits_disabled_nodes
-2026-10-19T21:20:51.5261643Z     config::tests::disabled_nodes_do_not_consume_ports
-2026-10-19T21:20:51.5262136Z [1m[91merror[0m: test failed, to rerun pass `--lib`
-2026-10-19T21:20:51.5262431Z     config::tests::enabled_nodes_exceeding_port_range_is_an_error
-2026-10-19T21:20:51.5262711Z     config::tests::grpc_transport_uses_service_name
-2026-10-19T21:20:51.5263076Z     config::tests::inbound_ports_match_the_plan
-2026-10-19T21:20:51.5263334Z     config::tests::node_tags_follow_the_configured_index
-2026-10-19T21:20:51.5263598Z     config::tests::overlapping_port_ranges_are_rejected
-2026-10-19T21:20:51.5263879Z     config::tests::shadowsocks_outbound_carries_method_and_password
-2026-10-19T21:20:51.5264149Z     config::tests::shadowsocks_plugin_is_emitted
-2026-10-19T21:20:51.5264395Z     config::tests::transport_types_map_to_singbox_names
-2026-10-19T21:20:51.5264620Z     config::tests::vless_alpn_is_an_array
-2026-10-19T21:20:51.5264825Z     config::tests::vless_flow_is_emitted
-2026-10-19T21:20:51.5265039Z     config::tests::vless_insecure_sets_tls_insecure
-2026-10-19T21:20:51.5265296Z     config::tests::vless_outbound_carries_tls_and_transport
-2026-10-19T21:20:51.5265682Z     config::tests::vless_reality_outbound_carries_the_reality_block
-2026-10-19T21:20:51.5265873Z 
-2026-10-19T21:20:51.5266070Z test result: FAILED. 38 passed; 18 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
-2026-10-19T21:20:51.5266335Z 
-2026-10-19T21:20:51.6164187Z ##[error]Process completed with exit code 1.
-2026-10-19T21:20:51.6357058Z Post job cleanup.
-2026-10-19T21:20:51.7654941Z [command]"C:\Program Files\Git\bin\git.exe" version
-2026-10-19T21:20:51.7950808Z git version 2.56.0.windows.2
-2026-10-19T21:20:51.8002638Z Temporarily overriding HOME='D:\a\_temp\c85e7cd7-1178-442e-9ecb-f7f2d0d66a17' before making global git config changes
-2026-10-19T21:20:51.8003199Z Adding repository directory to the temporary git global config as a safe directory
-2026-10-19T21:20:51.8011701Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\Portify\Portify
-2026-10-19T21:20:51.8336966Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
-2026-10-19T21:20:51.8669771Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
-2026-10-19T21:20:52.3997950Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
-2026-10-19T21:20:52.4264800Z http.https://github.com/.extraheader
-2026-10-19T21:20:52.4298896Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all http.https://github.com/.extraheader
-2026-10-19T21:20:52.4593580Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
-2026-10-19T21:20:52.9244102Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
-2026-10-19T21:20:52.9538209Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
-2026-10-19T21:20:53.4483022Z Cleaning up orphan processes
-2026-10-19T21:20:53.4601552Z Terminate orphan process: pid (4024) (vctip)
-2026-10-19T21:20:53.4610930Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+﻿2026-10-19T21:31:07.2450426Z Current runner version: '2.337.0'
+2026-10-19T21:31:07.2491262Z ##[group]Runner Image Provisioner
+2026-10-19T21:31:07.2492894Z Hosted Compute Agent
+2026-10-19T21:31:07.2493905Z Version: 20261002.596
+2026-10-19T21:31:07.2495143Z Commit: c3d12f3313a95f25162a1503be624f3b0617f8c0
+2026-10-19T21:31:07.2496440Z Build Date: 2026-10-02T22:28:27Z
+2026-10-19T21:31:07.2497646Z Worker ID: {0d10ee61-c08a-4d17-8146-ee51436df63d}
+2026-10-19T21:31:07.2498952Z Region: westcentralus
+2026-10-19T21:31:07.2499895Z Cloud: Azure
+2026-10-19T21:31:07.2500895Z ##[endgroup]
+2026-10-19T21:31:07.2503360Z ##[group]Operating System
+2026-10-19T21:31:07.2504409Z Microsoft Windows Server 2025
+2026-10-19T21:31:07.2505424Z 10.0.26100
+2026-10-19T21:31:07.2506207Z Datacenter
+2026-10-19T21:31:07.2507033Z ##[endgroup]
+2026-10-19T21:31:07.2508084Z ##[group]Runner Image
+2026-10-19T21:31:07.2509616Z Image: windows-2025-vs2026
+2026-10-19T21:31:07.2510652Z Version: 20261007.264.1
+2026-10-19T21:31:07.2513126Z Included Software: https://github.com/actions/runner-images/blob/win25-vs2026/20261007.264/images/windows/Windows2025-VS2026-Readme.md
+2026-10-19T21:31:07.2516518Z Image Release: https://github.com/actions/runner-images/releases/tag/win25-vs2026%2F20261007.264
+2026-10-19T21:31:07.2518401Z ##[endgroup]
+2026-10-19T21:31:07.2520437Z ##[group]GITHUB_TOKEN Permissions
+2026-10-19T21:31:07.2523926Z Contents: write
+2026-10-19T21:31:07.2524876Z Metadata: read
+2026-10-19T21:31:07.2525709Z ##[endgroup]
+2026-10-19T21:31:07.2528927Z Secret source: Actions
+2026-10-19T21:31:07.2530798Z Cache mode: write
+2026-10-19T21:31:07.2532125Z Prepare workflow directory
+2026-10-19T21:31:07.3012811Z Prepare all required actions
+2026-10-19T21:31:07.3075453Z Getting action download info
+2026-10-19T21:31:07.5965957Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-19T21:31:07.7349066Z Download action repository 'dtolnay/rust-toolchain@stable' (SHA:b725eda525362e7cf34af9a7243cac1e3f01a7ec)
+2026-10-19T21:31:07.9474685Z Download action repository 'Swatinem/rust-cache@v2' (SHA:6323deb102c322ba6fcbdcafc7e3dddab59af2b6)
+2026-10-19T21:31:08.7558556Z Complete job name: Rust core
+2026-10-19T21:31:08.9075682Z ##[group]Run actions/checkout@v4
+2026-10-19T21:31:08.9077711Z with:
+2026-10-19T21:31:08.9078615Z   repository: WhoisNeon/Portify
+2026-10-19T21:31:08.9086668Z   token: ***
+2026-10-19T21:31:08.9087417Z   ssh-strict: true
+2026-10-19T21:31:08.9088167Z   ssh-user: git
+2026-10-19T21:31:08.9088962Z   persist-credentials: true
+2026-10-19T21:31:08.9089854Z   clean: true
+2026-10-19T21:31:08.9090730Z   sparse-checkout-cone-mode: true
+2026-10-19T21:31:08.9091621Z   fetch-depth: 1
+2026-10-19T21:31:08.9092361Z   fetch-tags: false
+2026-10-19T21:31:08.9093143Z   show-progress: true
+2026-10-19T21:31:08.9093910Z   lfs: false
+2026-10-19T21:31:08.9094924Z   submodules: false
+2026-10-19T21:31:08.9095702Z   set-safe-directory: true
+2026-10-19T21:31:08.9096675Z   allow-unsafe-pr-checkout: false
+2026-10-19T21:31:08.9098094Z ##[endgroup]
+2026-10-19T21:31:09.0749793Z Syncing repository: WhoisNeon/Portify
+2026-10-19T21:31:09.0752446Z ##[group]Getting Git version info
+2026-10-19T21:31:09.0753601Z Working directory is 'D:\a\Portify\Portify'
+2026-10-19T21:31:09.1678252Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-10-19T21:31:09.4805442Z git version 2.56.0.windows.2
+2026-10-19T21:31:09.4869134Z ##[endgroup]
+2026-10-19T21:31:09.4892418Z Temporarily overriding HOME='D:\a\_temp\32d29124-f01d-43f8-b419-f42c29a90b75' before making global git config changes
+2026-10-19T21:31:09.4894805Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-19T21:31:09.4904299Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\Portify\Portify
+2026-10-19T21:31:09.5624576Z Deleting the contents of 'D:\a\Portify\Portify'
+2026-10-19T21:31:09.5632160Z ##[group]Initializing the repository
+2026-10-19T21:31:09.5642677Z [command]"C:\Program Files\Git\bin\git.exe" init D:\a\Portify\Portify
+2026-10-19T21:31:09.6701950Z Initialized empty Git repository in D:/a/Portify/Portify/.git/
+2026-10-19T21:31:09.6757842Z [command]"C:\Program Files\Git\bin\git.exe" remote add origin https://github.com/WhoisNeon/Portify
+2026-10-19T21:31:09.7468866Z ##[endgroup]
+2026-10-19T21:31:09.7470283Z ##[group]Disabling automatic garbage collection
+2026-10-19T21:31:09.7477903Z [command]"C:\Program Files\Git\bin\git.exe" config --local gc.auto 0
+2026-10-19T21:31:09.7885266Z ##[endgroup]
+2026-10-19T21:31:09.7886551Z ##[group]Setting up auth
+2026-10-19T21:31:09.7898086Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-10-19T21:31:09.8310529Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-10-19T21:31:11.2871326Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-19T21:31:11.3304033Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-10-19T21:31:11.9667279Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-19T21:31:12.0101774Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-10-19T21:31:12.6542722Z [command]"C:\Program Files\Git\bin\git.exe" config --local http.https://github.com/.extraheader "AUTHORIZATION: basic ***"
+2026-10-19T21:31:12.6990460Z ##[endgroup]
+2026-10-19T21:31:12.6991343Z ##[group]Fetching the repository
+2026-10-19T21:31:12.7004532Z [command]"C:\Program Files\Git\bin\git.exe" -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +cf5beeb8dd1d6d4a5d6c8bf6cd3b088c2b09ad93:refs/remotes/origin/feature/portify
+2026-10-19T21:31:13.8612420Z From https://github.com/WhoisNeon/Portify
+2026-10-19T21:31:13.8613401Z  * [new ref]         cf5beeb8dd1d6d4a5d6c8bf6cd3b088c2b09ad93 -> origin/feature/portify
+2026-10-19T21:31:13.8658586Z ##[endgroup]
+2026-10-19T21:31:13.8659618Z ##[group]Determining the checkout info
+2026-10-19T21:31:13.8663140Z ##[endgroup]
+2026-10-19T21:31:13.8673345Z [command]"C:\Program Files\Git\bin\git.exe" sparse-checkout disable
+2026-10-19T21:31:13.9245602Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all extensions.worktreeConfig
+2026-10-19T21:31:13.9702831Z ##[group]Checking out the ref
+2026-10-19T21:31:13.9711743Z [command]"C:\Program Files\Git\bin\git.exe" checkout --progress --force -B feature/portify refs/remotes/origin/feature/portify
+2026-10-19T21:31:14.0540427Z Switched to a new branch 'feature/portify'
+2026-10-19T21:31:14.0608269Z branch 'feature/portify' set up to track 'origin/feature/portify'.
+2026-10-19T21:31:14.0662629Z ##[endgroup]
+2026-10-19T21:31:14.1215423Z [command]"C:\Program Files\Git\bin\git.exe" log -1 --format=%H
+2026-10-19T21:31:14.1661267Z cf5beeb8dd1d6d4a5d6c8bf6cd3b088c2b09ad93
+2026-10-19T21:31:14.2448334Z ##[group]Run dtolnay/rust-toolchain@stable
+2026-10-19T21:31:14.2516588Z with:
+2026-10-19T21:31:14.2517045Z   components: rustfmt, clippy
+2026-10-19T21:31:14.2517315Z   toolchain: stable
+2026-10-19T21:31:14.2517555Z ##[endgroup]
+2026-10-19T21:31:14.2590677Z ##[start-action display=Parse toolchain version;id=__dtolnay_rust-toolchain.parse]
+2026-10-19T21:31:14.2788899Z ##[group]Run if [[ -z $toolchain ]]; then
+2026-10-19T21:31:14.2789339Z [36;1mif [[ -z $toolchain ]]; then[0m
+2026-10-19T21:31:14.2789938Z [36;1m  # GitHub does not enforce `required: true` inputs itself. https://github.com/actions/runner/issues/1070[0m
+2026-10-19T21:31:14.2790495Z [36;1m  echo "'toolchain' is a required input" >&2[0m
+2026-10-19T21:31:14.2791848Z [36;1m  exit 1[0m
+2026-10-19T21:31:14.2792188Z [36;1melif [[ $toolchain =~ ^stable' '[0-9]+' '(year|month|week|day)s?' 'ago$ ]]; then[0m
+2026-10-19T21:31:14.2792606Z [36;1m  if [[ Windows == macOS ]]; then[0m
+2026-10-19T21:31:14.2793196Z [36;1m    echo "toolchain=1.$((($(date -v-$(sed 's/stable \([0-9]*\) \(.\).*/\1\2/' <<< $toolchain) +%s)/60/60/24-16569)/7/6))" >> $GITHUB_OUTPUT[0m
+2026-10-19T21:31:14.2793704Z [36;1m  else[0m
+2026-10-19T21:31:14.2794107Z [36;1m    echo "toolchain=1.$((($(date --date "${toolchain#stable }" +%s)/60/60/24-16569)/7/6))" >> $GITHUB_OUTPUT[0m
+2026-10-19T21:31:14.2794556Z [36;1m  fi[0m
+2026-10-19T21:31:14.2794850Z [36;1melif [[ $toolchain =~ ^stable' 'minus' '[0-9]+' 'releases?$ ]]; then[0m
+2026-10-19T21:31:14.2795379Z [36;1m  echo "toolchain=1.$((($(date +%s)/60/60/24-16569)/7/6-${toolchain//[^0-9]/}))" >> $GITHUB_OUTPUT[0m
+2026-10-19T21:31:14.2795835Z [36;1melif [[ $toolchain =~ ^1\.[0-9]+$ ]]; then[0m
+2026-10-19T21:31:14.2796360Z [36;1m  echo "toolchain=1.$((i=${toolchain#1.}, c=($(date +%s)/60/60/24-16569)/7/6, i+9*i*(10*i<=c)+90*i*(100*i<=c)))" >> $GITHUB_OUTPUT[0m
+2026-10-19T21:31:14.2796845Z [36;1melse[0m
+2026-10-19T21:31:14.2797034Z [36;1m  delimiter=EOF[0m
+2026-10-19T21:31:14.2797341Z [36;1m  while [[ $toolchain == *$delimiter* ]]; do delimiter+=_; done[0m
+2026-10-19T21:31:14.2797848Z [36;1m  printf 'toolchain<<%s\n%s\n%s\n' "$delimiter" "$toolchain" "$delimiter" >> $GITHUB_OUTPUT[0m
+2026-10-19T21:31:14.2798257Z [36;1mfi[0m
+2026-10-19T21:31:14.2821292Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-10-19T21:31:14.2821731Z env:
+2026-10-19T21:31:14.2821924Z   toolchain: stable
+2026-10-19T21:31:14.2822132Z ##[endgroup]
+2026-10-19T21:31:14.4421260Z ##[end-action id=__dtolnay_rust-toolchain.parse;outcome=success;conclusion=success;duration_ms=182]
+2026-10-19T21:31:14.4426305Z ##[start-action display=Set $CARGO_HOME;id=__dtolnay_rust-toolchain.__run]
+2026-10-19T21:31:14.4597735Z ##[group]Run echo CARGO_HOME=${CARGO_HOME:-"$USERPROFILE\.cargo"} >> $GITHUB_ENV
+2026-10-19T21:31:14.4598283Z [36;1mecho CARGO_HOME=${CARGO_HOME:-"$USERPROFILE\.cargo"} >> $GITHUB_ENV[0m
+2026-10-19T21:31:14.4616184Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-10-19T21:31:14.4616637Z ##[endgroup]
+2026-10-19T21:31:14.5169688Z ##[end-action id=__dtolnay_rust-toolchain.__run;outcome=success;conclusion=success;duration_ms=74]
+2026-10-19T21:31:14.5172362Z ##[start-action display=Install rustup if needed;id=__dtolnay_rust-toolchain.__run_2]
+2026-10-19T21:31:14.5184193Z ##[end-action id=__dtolnay_rust-toolchain.__run_2;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-10-19T21:31:14.5187210Z ##[start-action display=Install rustup if needed on windows;id=__dtolnay_rust-toolchain.__run_3]
+2026-10-19T21:31:14.5344855Z ##[group]Run if ! command -v rustup &>/dev/null; then
+2026-10-19T21:31:14.5345255Z [36;1mif ! command -v rustup &>/dev/null; then[0m
+2026-10-19T21:31:14.5346049Z [36;1m  curl --proto '=https' --tlsv1.2 --retry 10 --retry-connrefused --location --silent --show-error --fail https://win.rustup.rs/x86_64 --output 'D:\a\_temp\rustup-init.exe'[0m
+2026-10-19T21:31:14.5348779Z [36;1m  'D:\a\_temp\rustup-init.exe' --default-toolchain none --no-modify-path -y[0m
+2026-10-19T21:31:14.5349306Z [36;1m  echo "$CARGO_HOME\bin" >> $GITHUB_PATH[0m
+2026-10-19T21:31:14.5349588Z [36;1mfi[0m
+2026-10-19T21:31:14.5367091Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-10-19T21:31:14.5367511Z env:
+2026-10-19T21:31:14.5367725Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-19T21:31:14.5367986Z ##[endgroup]
+2026-10-19T21:31:14.5946736Z ##[end-action id=__dtolnay_rust-toolchain.__run_3;outcome=success;conclusion=success;duration_ms=75]
+2026-10-19T21:31:14.5964451Z ##[start-action display=rustup toolchain install stable;id=__dtolnay_rust-toolchain.__run_4]
+2026-10-19T21:31:14.6116916Z ##[group]Run set -f  # split targets and components on commas and whitespace, without glob expansion
+2026-10-19T21:31:14.6117824Z [36;1mset -f  # split targets and components on commas and whitespace, without glob expansion[0m
+2026-10-19T21:31:14.6118256Z [36;1mflags=()[0m
+2026-10-19T21:31:14.6118533Z [36;1mfor t in ${targets//,/ }; do flags+=(--target "$t"); done[0m
+2026-10-19T21:31:14.6118937Z [36;1mfor c in ${components//,/ }; do flags+=(--component "$c"); done[0m
+2026-10-19T21:31:14.6119429Z [36;1mif [[ $toolchain == nightly && -n $components ]]; then flags+=(--allow-downgrade); fi[0m
+2026-10-19T21:31:14.6119837Z [36;1mlog=$(mktemp)[0m
+2026-10-19T21:31:14.6120060Z [36;1mtrap 'rm -f "$log"' EXIT[0m
+2026-10-19T21:31:14.6120312Z [36;1mfor attempt in 1 2 3 4 5; do[0m
+2026-10-19T21:31:14.6120872Z [36;1m  if rustup toolchain install "$toolchain" "${flags[@]}" --profile minimal --no-self-update --force-non-host 2>&1 | tee "$log"; then[0m
+2026-10-19T21:31:14.6121427Z [36;1m    break[0m
+2026-10-19T21:31:14.6121622Z [36;1m  else[0m
+2026-10-19T21:31:14.6121811Z [36;1m    status=$?[0m
+2026-10-19T21:31:14.6122006Z [36;1m  fi[0m
+2026-10-19T21:31:14.6122277Z [36;1m  if [[ $attempt == 5 ]] || ! grep -Fq 'checksum failed for ' "$log" \[0m
+2026-10-19T21:31:14.6122828Z [36;1m      || ! grep -Fq 'this is likely due to an ongoing update of the official release server' "$log"; then[0m
+2026-10-19T21:31:14.6123279Z [36;1m    exit "$status"[0m
+2026-10-19T21:31:14.6123485Z [36;1m  fi[0m
+2026-10-19T21:31:14.6123827Z [36;1m  echo "Retrying rustup toolchain install in 30 seconds (retry $attempt of 4)" >&2[0m
+2026-10-19T21:31:14.6124239Z [36;1m  sleep 30[0m
+2026-10-19T21:31:14.6124431Z [36;1mdone[0m
+2026-10-19T21:31:14.6143771Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-10-19T21:31:14.6144208Z env:
+2026-10-19T21:31:14.6144423Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-19T21:31:14.6144697Z   toolchain: stable
+2026-10-19T21:31:14.6144905Z   targets: 
+2026-10-19T21:31:14.6145120Z   components: rustfmt, clippy
+2026-10-19T21:31:14.6145372Z   RUSTUP_PERMIT_COPY_RENAME: 1
+2026-10-19T21:31:14.6145610Z ##[endgroup]
+2026-10-19T21:31:17.9412006Z info: syncing channel updates for stable-x86_64-pc-windows-msvc
+2026-10-19T21:31:18.5752031Z info: latest update on 2026-10-15 for version 1.99.1 (58cf8f9c3 2026-10-13)
+2026-10-19T21:31:18.6069744Z info: removing previous version of component rustfmt
+2026-10-19T21:31:18.6388783Z info: removing previous version of component clippy
+2026-10-19T21:31:18.6546372Z info: removing previous version of component rust-std for target x86_64-pc-windows-gnu
+2026-10-19T21:31:18.7813440Z info: removing previous version of component rust-std for target i686-pc-windows-msvc
+2026-10-19T21:31:18.8921921Z info: removing previous version of component cargo
+2026-10-19T21:31:18.9874032Z info: removing previous version of component rust-std
+2026-10-19T21:31:19.0665343Z info: removing previous version of component rustc
+2026-10-19T21:31:19.2085433Z info: downloading 7 components
+2026-10-19T21:31:33.2435308Z 
+2026-10-19T21:31:33.2755521Z   stable-x86_64-pc-windows-msvc updated - rustc 1.99.1 (58cf8f9c3 2026-10-13) (from rustc 1.99.0 (b940084d7 2026-09-28))
+2026-10-19T21:31:33.2756368Z 
+2026-10-19T21:31:33.3117005Z ##[end-action id=__dtolnay_rust-toolchain.__run_4;outcome=success;conclusion=success;duration_ms=18715]
+2026-10-19T21:31:33.3124521Z ##[start-action display=rustup default stable;id=__dtolnay_rust-toolchain.__run_5]
+2026-10-19T21:31:33.3277443Z ##[group]Run rustup default "$toolchain" --force-non-host
+2026-10-19T21:31:33.3277842Z [36;1mrustup default "$toolchain" --force-non-host[0m
+2026-10-19T21:31:33.3294278Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-10-19T21:31:33.3294677Z env:
+2026-10-19T21:31:33.3294875Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-19T21:31:33.3295132Z   toolchain: stable
+2026-10-19T21:31:33.3295329Z ##[endgroup]
+2026-10-19T21:31:33.4069458Z info: using existing install for stable-x86_64-pc-windows-msvc
+2026-10-19T21:31:33.4112045Z info: default toolchain set to stable-x86_64-pc-windows-msvc
+2026-10-19T21:31:33.4112394Z 
+2026-10-19T21:31:33.4370760Z   stable-x86_64-pc-windows-msvc unchanged - rustc 1.99.1 (58cf8f9c3 2026-10-13)
+2026-10-19T21:31:33.4371187Z 
+2026-10-19T21:31:33.4460265Z ##[end-action id=__dtolnay_rust-toolchain.__run_5;outcome=success;conclusion=success;duration_ms=133]
+2026-10-19T21:31:33.4464941Z ##[start-action display=Create cachekey;id=__dtolnay_rust-toolchain.rustc-version]
+2026-10-19T21:31:33.4610189Z ##[group]Run DATE=$(rustc +"$toolchain" --version --verbose | sed -ne 's/^commit-date: \(20[0-9][0-9]\)-\([01][0-9]\)-\([0-3][0-9]\)$/\1\2\3/p')
+2026-10-19T21:31:33.4611060Z [36;1mDATE=$(rustc +"$toolchain" --version --verbose | sed -ne 's/^commit-date: \(20[0-9][0-9]\)-\([01][0-9]\)-\([0-3][0-9]\)$/\1\2\3/p')[0m
+2026-10-19T21:31:33.4611725Z [36;1mHASH=$(rustc +"$toolchain" --version --verbose | sed -ne 's/^commit-hash: //p')[0m
+2026-10-19T21:31:33.4612238Z [36;1mecho "cachekey=$(echo $DATE$HASH | head -c12)" >> $GITHUB_OUTPUT[0m
+2026-10-19T21:31:33.4630123Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-10-19T21:31:33.4630523Z env:
+2026-10-19T21:31:33.4630734Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-19T21:31:33.4630998Z   toolchain: stable
+2026-10-19T21:31:33.4631189Z ##[endgroup]
+2026-10-19T21:31:34.3150115Z ##[end-action id=__dtolnay_rust-toolchain.rustc-version;outcome=success;conclusion=success;duration_ms=868]
+2026-10-19T21:31:34.3154513Z ##[start-action display=Disable incremental compilation;id=__dtolnay_rust-toolchain.__run_6]
+2026-10-19T21:31:34.3338277Z ##[group]Run if [ -z "${CARGO_INCREMENTAL+set}" ]; then
+2026-10-19T21:31:34.3338669Z [36;1mif [ -z "${CARGO_INCREMENTAL+set}" ]; then[0m
+2026-10-19T21:31:34.3338984Z [36;1m  echo CARGO_INCREMENTAL=0 >> $GITHUB_ENV[0m
+2026-10-19T21:31:34.3339260Z [36;1mfi[0m
+2026-10-19T21:31:34.3354177Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-10-19T21:31:34.3354588Z env:
+2026-10-19T21:31:34.3354794Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-19T21:31:34.3355054Z ##[endgroup]
+2026-10-19T21:31:34.3829491Z ##[end-action id=__dtolnay_rust-toolchain.__run_6;outcome=success;conclusion=success;duration_ms=67]
+2026-10-19T21:31:34.3832793Z ##[start-action display=Enable colors in Cargo output;id=__dtolnay_rust-toolchain.__run_7]
+2026-10-19T21:31:34.3979938Z ##[group]Run if [ -z "${CARGO_TERM_COLOR+set}" ]; then
+2026-10-19T21:31:34.3980316Z [36;1mif [ -z "${CARGO_TERM_COLOR+set}" ]; then[0m
+2026-10-19T21:31:34.3980643Z [36;1m  echo CARGO_TERM_COLOR=always >> $GITHUB_ENV[0m
+2026-10-19T21:31:34.3980925Z [36;1mfi[0m
+2026-10-19T21:31:34.3996186Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-10-19T21:31:34.3996588Z env:
+2026-10-19T21:31:34.3996787Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-19T21:31:34.3997052Z   CARGO_INCREMENTAL: 0
+2026-10-19T21:31:34.3997266Z ##[endgroup]
+2026-10-19T21:31:34.4430216Z ##[end-action id=__dtolnay_rust-toolchain.__run_7;outcome=success;conclusion=success;duration_ms=59]
+2026-10-19T21:31:34.4434417Z ##[start-action display=Enable Cargo sparse registry;id=__dtolnay_rust-toolchain.__run_8]
+2026-10-19T21:31:34.4571345Z ##[group]Run # implemented in 1.66, stabilized in 1.68, made default in 1.70
+2026-10-19T21:31:34.4571880Z [36;1m# implemented in 1.66, stabilized in 1.68, made default in 1.70[0m
+2026-10-19T21:31:34.4572530Z [36;1mif [ -z "${CARGO_REGISTRIES_CRATES_IO_PROTOCOL+set}" -o -f "D:\a\_temp"/.implicit_cargo_registries_crates_io_protocol ]; then[0m
+2026-10-19T21:31:34.4573217Z [36;1m  if rustc +"$toolchain" --version --verbose | grep -q '^release: 1\.6[89]\.'; then[0m
+2026-10-19T21:31:34.4573739Z [36;1m    touch "D:\a\_temp"/.implicit_cargo_registries_crates_io_protocol || true[0m
+2026-10-19T21:31:34.4574226Z [36;1m    echo CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse >> $GITHUB_ENV[0m
+2026-10-19T21:31:34.4575557Z [36;1m  elif rustc +"$toolchain" --version --verbose | grep -q '^release: 1\.6[67]\.'; then[0m
+2026-10-19T21:31:34.4576096Z [36;1m    touch "D:\a\_temp"/.implicit_cargo_registries_crates_io_protocol || true[0m
+2026-10-19T21:31:34.4576568Z [36;1m    echo CARGO_REGISTRIES_CRATES_IO_PROTOCOL=git >> $GITHUB_ENV[0m
+2026-10-19T21:31:34.4576914Z [36;1m  fi[0m
+2026-10-19T21:31:34.4577087Z [36;1mfi[0m
+2026-10-19T21:31:34.4592896Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-10-19T21:31:34.4593297Z env:
+2026-10-19T21:31:34.4593493Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-19T21:31:34.4593759Z   CARGO_INCREMENTAL: 0
+2026-10-19T21:31:34.4593963Z   CARGO_TERM_COLOR: always
+2026-10-19T21:31:34.4594173Z   toolchain: stable
+2026-10-19T21:31:34.4594358Z ##[endgroup]
+2026-10-19T21:31:34.6629422Z ##[end-action id=__dtolnay_rust-toolchain.__run_8;outcome=success;conclusion=success;duration_ms=219]
+2026-10-19T21:31:34.6633847Z ##[start-action display=Work around spurious network errors in curl 8.0;id=__dtolnay_rust-toolchain.__run_9]
+2026-10-19T21:31:34.6778057Z ##[group]Run # https://rust-lang.zulipchat.com/#narrow/stream/246057-t-cargo/topic/timeout.20investigation
+2026-10-19T21:31:34.6778855Z [36;1m# https://rust-lang.zulipchat.com/#narrow/stream/246057-t-cargo/topic/timeout.20investigation[0m
+2026-10-19T21:31:34.6779483Z [36;1mif rustc +"$toolchain" --version --verbose | grep -q '^release: 1\.7[01]\.'; then[0m
+2026-10-19T21:31:34.6779948Z [36;1m  echo CARGO_HTTP_MULTIPLEXING=false >> $GITHUB_ENV[0m
+2026-10-19T21:31:34.6780248Z [36;1mfi[0m
+2026-10-19T21:31:34.6797235Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-10-19T21:31:34.6797650Z env:
+2026-10-19T21:31:34.6797851Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-19T21:31:34.6798116Z   CARGO_INCREMENTAL: 0
+2026-10-19T21:31:34.6798325Z   CARGO_TERM_COLOR: always
+2026-10-19T21:31:34.6798539Z   toolchain: stable
+2026-10-19T21:31:34.6798752Z ##[endgroup]
+2026-10-19T21:31:34.8068161Z ##[end-action id=__dtolnay_rust-toolchain.__run_9;outcome=success;conclusion=success;duration_ms=143]
+2026-10-19T21:31:34.8073418Z ##[start-action display=rustc +stable --version --verbose;id=__dtolnay_rust-toolchain.__run_10]
+2026-10-19T21:31:34.8222585Z ##[group]Run rustc +"$toolchain" --version --verbose
+2026-10-19T21:31:34.8222958Z [36;1mrustc +"$toolchain" --version --verbose[0m
+2026-10-19T21:31:34.8239276Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+2026-10-19T21:31:34.8239678Z env:
+2026-10-19T21:31:34.8239886Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-19T21:31:34.8240154Z   CARGO_INCREMENTAL: 0
+2026-10-19T21:31:34.8240363Z   CARGO_TERM_COLOR: always
+2026-10-19T21:31:34.8240579Z   toolchain: stable
+2026-10-19T21:31:34.8240766Z ##[endgroup]
+2026-10-19T21:31:34.9189206Z rustc 1.99.1 (58cf8f9c3 2026-10-13)
+2026-10-19T21:31:34.9189566Z binary: rustc
+2026-10-19T21:31:34.9190189Z commit-hash: 58cf8f9c35b355199727627d07ae34a4e2846d67
+2026-10-19T21:31:34.9190573Z commit-date: 2026-10-13
+2026-10-19T21:31:34.9190805Z host: x86_64-pc-windows-msvc
+2026-10-19T21:31:34.9191036Z release: 1.99.1
+2026-10-19T21:31:34.9192755Z LLVM version: 23.1.1
+2026-10-19T21:31:34.9331098Z ##[end-action id=__dtolnay_rust-toolchain.__run_10;outcome=success;conclusion=success;duration_ms=125]
+2026-10-19T21:31:34.9583221Z ##[group]Run Swatinem/rust-cache@v2
+2026-10-19T21:31:34.9583770Z with:
+2026-10-19T21:31:34.9583965Z   workspaces: src-tauri
+2026-10-19T21:31:34.9584189Z   prefix-key: v0-rust
+2026-10-19T21:31:34.9584398Z   add-job-id-key: true
+2026-10-19T21:31:34.9584626Z   add-rust-environment-hash-key: true
+2026-10-19T21:31:34.9584879Z   cache-targets: true
+2026-10-19T21:31:34.9585077Z   cache-all-crates: false
+2026-10-19T21:31:34.9585472Z   cache-workspace-crates: false
+2026-10-19T21:31:34.9585899Z   save-if: true
+2026-10-19T21:31:34.9586105Z   cache-provider: github
+2026-10-19T21:31:34.9586593Z   cache-bin: true
+2026-10-19T21:31:34.9586861Z   lookup-only: false
+2026-10-19T21:31:34.9587227Z   cmd-format: {0}
+2026-10-19T21:31:34.9587420Z env:
+2026-10-19T21:31:34.9587609Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-19T21:31:34.9587878Z   CARGO_INCREMENTAL: 0
+2026-10-19T21:31:34.9588092Z   CARGO_TERM_COLOR: always
+2026-10-19T21:31:34.9588305Z ##[endgroup]
+2026-10-19T21:31:36.2254790Z ##[group]Cache Configuration
+2026-10-19T21:31:36.2255330Z Cache Provider:
+2026-10-19T21:31:36.2255670Z     github
+2026-10-19T21:31:36.2255985Z Workspaces:
+2026-10-19T21:31:36.2256343Z     D:\a\Portify\Portify\src-tauri
+2026-10-19T21:31:36.2256779Z Cache Paths:
+2026-10-19T21:31:36.2257127Z     C:\Users\runneradmin\.cargo\bin
+2026-10-19T21:31:36.2257613Z     C:\Users\runneradmin\.cargo\.crates.toml
+2026-10-19T21:31:36.2258117Z     C:\Users\runneradmin\.cargo\.crates2.json
+2026-10-19T21:31:36.2258604Z     C:\Users\runneradmin\.cargo\registry
+2026-10-19T21:31:36.2259078Z     C:\Users\runneradmin\.cargo\git
+2026-10-19T21:31:36.2259584Z     D:\a\Portify\Portify\src-tauri\target
+2026-10-19T21:31:36.2260035Z Restore Key:
+2026-10-19T21:31:36.2260392Z     v0-rust-rust-Windows_NT-x64-e70cdc14
+2026-10-19T21:31:36.2260848Z Cache Key:
+2026-10-19T21:31:36.2261218Z     v0-rust-rust-Windows_NT-x64-e70cdc14-687330a7
+2026-10-19T21:31:36.2261671Z .. Prefix:
+2026-10-19T21:31:36.2262016Z   - v0-rust-rust-Windows_NT-x64
+2026-10-19T21:31:36.2262454Z .. Environment considered:
+2026-10-19T21:31:36.2262728Z   - Rust Versions:
+2026-10-19T21:31:36.2263076Z     - 1.99.1 x86_64-pc-windows-msvc 58cf8f9c35b355199727627d07ae34a4e2846d67
+2026-10-19T21:31:36.2263434Z   - CARGO_HOME
+2026-10-19T21:31:36.2263931Z   - CARGO_INCREMENTAL
+2026-10-19T21:31:36.2264261Z   - CARGO_TERM_COLOR
+2026-10-19T21:31:36.2264614Z .. Lockfiles considered:
+2026-10-19T21:31:36.2265009Z   - D:\a\Portify\Portify\src-tauri\Cargo.lock
+2026-10-19T21:31:36.2265526Z   - D:\a\Portify\Portify\src-tauri\Cargo.toml
+2026-10-19T21:31:36.2266371Z ##[endgroup]
+2026-10-19T21:31:36.2266548Z 
+2026-10-19T21:31:36.2266693Z ... Restoring cache ...
+2026-10-19T21:31:36.5515451Z Cache hit for restore-key: v0-rust-rust-Windows_NT-x64-e70cdc14-2f085d4e
+2026-10-19T21:31:37.7914147Z Received 79691776 of 789088737 (10.1%), 75.5 MBs/sec
+2026-10-19T21:31:38.7974062Z Received 234881024 of 789088737 (29.8%), 111.3 MBs/sec
+2026-10-19T21:31:39.8116929Z Received 385875968 of 789088737 (48.9%), 121.9 MBs/sec
+2026-10-19T21:31:40.9155836Z Received 536870912 of 789088737 (68.0%), 124.1 MBs/sec
+2026-10-19T21:31:41.9287539Z Received 671088640 of 789088737 (85.0%), 124.4 MBs/sec
+2026-10-19T21:31:42.7478102Z Received 789088737 of 789088737 (100.0%), 126.2 MBs/sec
+2026-10-19T21:31:42.7481700Z Cache Size: ~753 MB (789088737 B)
+2026-10-19T21:31:42.7521473Z [command]"C:\Program Files\Git\usr\bin\tar.exe" -xf D:/a/_temp/723ec4f6-0b9c-4f73-b116-9437418a111c/cache.tzst -P -C D:/a/Portify/Portify --force-local --use-compress-program "zstd -d"
+2026-10-19T21:32:05.5774031Z Cache restored successfully
+2026-10-19T21:32:05.6279467Z Restored from cache key "v0-rust-rust-Windows_NT-x64-e70cdc14-2f085d4e" full match: false.
+2026-10-19T21:32:05.6669202Z ##[group]Run cargo test --manifest-path src-tauri/Cargo.toml
+2026-10-19T21:32:05.6670000Z [36;1mcargo test --manifest-path src-tauri/Cargo.toml[0m
+2026-10-19T21:32:07.0691795Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-10-19T21:32:07.0692226Z env:
+2026-10-19T21:32:07.0692473Z   CARGO_HOME: C:\Users\runneradmin\.cargo
+2026-10-19T21:32:07.0692788Z   CARGO_INCREMENTAL: 0
+2026-10-19T21:32:07.0693031Z   CARGO_TERM_COLOR: always
+2026-10-19T21:32:07.0693293Z   CACHE_ON_FAILURE: false
+2026-10-19T21:32:07.0693538Z ##[endgroup]
+2026-10-19T21:32:07.6456090Z [1m[92m    Updating[0m crates.io index
+2026-10-19T21:32:30.8954803Z [1m[92m   Compiling[0m portify v0.1.0 (D:\a\Portify\Portify\src-tauri)
+2026-10-19T21:32:34.5822295Z [1m[91merror[E0308][0m[1m[97m: mismatched types[0m
+2026-10-19T21:32:34.5823669Z   [1m[96m--> [0msrc\config.rs:50:23
+2026-10-19T21:32:34.5824323Z    [1m[96m|[0m
+2026-10-19T21:32:34.5824956Z [1m[96m50[0m [1m[96m|[0m     if socks_start <= http_end && http_start <= socks_end {
+2026-10-19T21:32:34.5825903Z    [1m[96m|[0m        [1m[96m-----------[0m    [1m[91m^^^^^^^^[0m [1m[91mexpected `u16`, found `u32`[0m
+2026-10-19T21:32:34.5826590Z    [1m[96m|[0m        [1m[96m|[0m
+2026-10-19T21:32:34.5827125Z    [1m[96m|[0m        [1m[96mexpected because this is `u16`[0m
+2026-10-19T21:32:34.5827634Z    [1m[96m|[0m
+2026-10-19T21:32:34.5828297Z [1m[96mhelp[0m: you can convert `socks_start` from `u16` to `u32`, matching the type of `http_end`
+2026-10-19T21:32:34.5828980Z    [1m[96m|[0m
+2026-10-19T21:32:34.5836210Z [1m[96m50[0m [1m[96m| [0m    if [92mu32::from([0msocks_start[92m)[0m <= http_end && http_start <= socks_end {
+2026-10-19T21:32:34.5837078Z    [1m[96m|[0m        [92m++++++++++[0m           [92m+[0m
+2026-10-19T21:32:34.5837457Z 
+2026-10-19T21:32:34.5884986Z [1m[91merror[E0308][0m[1m[97m: mismatched types[0m
+2026-10-19T21:32:34.5888841Z   [1m[96m--> [0msrc\config.rs:50:49
+2026-10-19T21:32:34.5891193Z    [1m[96m|[0m
+2026-10-19T21:32:34.5895052Z [1m[96m50[0m [1m[96m|[0m     if socks_start <= http_end && http_start <= socks_end {
+2026-10-19T21:32:34.5898201Z    [1m[96m|[0m                                   [1m[96m----------[0m    [1m[91m^^^^^^^^^[0m [1m[91mexpected `u16`, found `u32`[0m
+2026-10-19T21:32:34.5899969Z    [1m[96m|[0m                                   [1m[96m|[0m
+2026-10-19T21:32:34.5901217Z    [1m[96m|[0m                                   [1m[96mexpected because this is `u16`[0m
+2026-10-19T21:32:34.5902313Z    [1m[96m|[0m
+2026-10-19T21:32:34.5903290Z [1m[96mhelp[0m: you can convert `http_start` from `u16` to `u32`, matching the type of `socks_end`
+2026-10-19T21:32:34.5904447Z    [1m[96m|[0m
+2026-10-19T21:32:34.5905744Z [1m[96m50[0m [1m[96m| [0m    if socks_start <= http_end && [92mu32::from([0mhttp_start[92m)[0m <= socks_end {
+2026-10-19T21:32:34.5907280Z    [1m[96m|[0m                                   [92m++++++++++[0m          [92m+[0m
+2026-10-19T21:32:34.5908161Z 
+2026-10-19T21:32:35.5346731Z [1m[93mwarning[0m[1m[97m: unused variable: `transport`[0m
+2026-10-19T21:32:35.5347662Z    [1m[96m--> [0msrc\config.rs:523:17
+2026-10-19T21:32:35.5348191Z     [1m[96m|[0m
+2026-10-19T21:32:35.5348797Z [1m[96m523[0m [1m[96m|[0m             let transport = match expected {
+2026-10-19T21:32:35.5349967Z     [1m[96m|[0m                 [1m[93m^^^^^^^^^[0m [1m[93mhelp: if this is intentional, prefix it with an underscore: `_transport`[0m
+2026-10-19T21:32:35.5350844Z     [1m[96m|[0m
+2026-10-19T21:32:35.5351599Z     [1m[96m= [0m[1m[97mnote[0m: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+2026-10-19T21:32:35.5352218Z 
+2026-10-19T21:32:36.0381806Z [1m[97mFor more information about this error, try `rustc --explain E0308`.[0m
+2026-10-19T21:32:36.0538974Z [1m[91merror[0m: could not compile `portify` (lib) due to 2 previous errors
+2026-10-19T21:32:36.0539780Z [1m[93mwarning[0m: build failed, waiting for other jobs to finish...
+2026-10-19T21:32:36.2248923Z [1m[93mwarning[0m: `portify` (lib test) generated 1 warning
+2026-10-19T21:32:36.2249961Z [1m[91merror[0m: could not compile `portify` (lib test) due to 2 previous errors; 1 warning emitted
+2026-10-19T21:32:36.3949817Z ##[error]Process completed with exit code 1.
+2026-10-19T21:32:36.4235230Z Post job cleanup.
+2026-10-19T21:32:36.6344263Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-10-19T21:32:36.6733115Z git version 2.56.0.windows.2
+2026-10-19T21:32:36.6824947Z Temporarily overriding HOME='D:\a\_temp\ac64a768-16e4-4816-8901-f5214cf41f8e' before making global git config changes
+2026-10-19T21:32:36.6825979Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-19T21:32:36.6837845Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\Portify\Portify
+2026-10-19T21:32:36.7275744Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-10-19T21:32:36.7713319Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-10-19T21:32:37.4215244Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-19T21:32:37.4599790Z http.https://github.com/.extraheader
+2026-10-19T21:32:37.4663312Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all http.https://github.com/.extraheader
+2026-10-19T21:32:37.5106023Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-10-19T21:32:38.1497575Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-19T21:32:38.1922916Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-10-19T21:32:38.8678117Z Cleaning up orphan processes
+2026-10-19T21:32:38.9354465Z Terminate orphan process: pid (1452) (vctip)
+2026-10-19T21:32:38.9370371Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
