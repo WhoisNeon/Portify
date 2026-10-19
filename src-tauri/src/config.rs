@@ -47,9 +47,7 @@ pub fn allocate_ports(
 
     // The ranges must not overlap, or one node's HTTP inbound would collide
     // with another node's SOCKS inbound.
-    let socks_start = socks_start as u32;
-    let http_start = http_start as u32;
-    if socks_start <= http_end && http_start <= socks_end {
+    if socks_start as u32 <= http_end && http_start as u32 <= socks_end {
         return Err(format!(
             "the SOCKS range {socks_start}-{socks_end} and the HTTP range {http_start}-{http_end} overlap"
         ));
