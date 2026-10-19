@@ -1,5 +1,11 @@
 use crate::nodes::Node;
+use std::time::{Duration, Instant};
 
+/// The endpoint used to measure latency and read the exit IP.
+///
+/// It is plain HTTP on purpose: a TLS handshake would add a variable that
+/// depends on the node's own TLS configuration, which would make the
+/// latency number meaningless as a comparison between nodes.
 pub const PROBE_URL: &str = "http://api.ipify.org?format=json";
 
 #[derive(Debug, Clone, Default)]
@@ -9,16 +15,125 @@ pub struct ProbeResult {
     pub error: Option<String>,
 }
 
-pub fn parse_exit_ip(_body: &str) -> Option<String> {
-    None
+/// Reads the exit IP out of the probe response body.
+pub fn parse_exit_ip(body: &str) -> Option<String> {
+    let value: serde_json::Value = serde_json::from_str(body.trim()).ok()?;
+    let ip = value.get("ip")?.as_str()?.trim();
+    if ip.is_empty() {
+        None
+    } else {
+        Some(ip.to_string())
+    }
 }
 
-pub fn describe_error(_status: Option<u16>, _err: &str) -> String {
-    String::new()
+/// Turns a transport error into a message a user can act on.
+pub fn describe_error(status: Option<u16>, err: &str) -> String {
+    if let Some(code) = status {
+        return format!("the probe endpoint answered HTTP {code}");
+    }
+
+    let lower = err.to_lowercase();
+    if lower.contains("refused") {
+        return "the node refused the connection".to_string();
+    }
+    if lower.contains("timed out") || lower.contains("timeout") {
+        return "the node did not answer in time".to_string();
+    }
+    if lower.contains("dns") || lower.contains("lookup") || lower.contains("name resolution") {
+        return "the node's address could not be resolved".to_string();
+    }
+    if lower.contains("reset by peer") {
+        return "the node reset the connection".to_string();
+    }
+    if lower.contains("certificate") || lower.contains("tls") {
+        return "the TLS handshake with the node failed".to_string();
+    }
+    if err.trim().is_empty() {
+        "the probe failed".to_string()
+    } else {
+        err.trim().to_string()
+    }
 }
 
-pub async fn probe_node(_node: &Node, _timeout_ms: u64) -> ProbeResult {
-    ProbeResult::default()
+/// Probes one node through its local SOCKS5 port.
+///
+/// The latency is the round-trip time of the single request that also
+/// carries the exit IP.
+pub async fn probe_node(node: &Node, timeout_ms: u64) -> ProbeResult {
+    let Some(socks_port) = node.socks_port else {
+        return ProbeResult {
+            error: Some("the node has no SOCKS port; start the gateway first".into()),
+            ..Default::default()
+        };
+    };
+
+    let proxy = match reqwest::Proxy::all(format!("socks5://127.0.0.1:{socks_port}")) {
+        Ok(p) => p,
+        Err(e) => {
+            return ProbeResult {
+                error: Some(format!("could not use the node's SOCKS port: {e}")),
+                ..Default::default()
+            };
+        }
+    };
+
+    let client = match reqwest::Client::builder()
+        .proxy(proxy)
+        .timeout(Duration::from_millis(timeout_ms.max(1000)))
+        .build()
+    {
+        Ok(c) => c,
+        Err(e) => {
+            return ProbeResult {
+                error: Some(format!("could not create the HTTP client: {e}")),
+                ..Default::default()
+            };
+        }
+    };
+
+    let started = Instant::now();
+    let response = match client.get(PROBE_URL).send().await {
+        Ok(r) => r,
+        Err(e) => {
+            return ProbeResult {
+                error: Some(describe_error(None, &e.to_string())),
+                ..Default::default()
+            };
+        }
+    };
+    let elapsed = started.elapsed();
+
+    let status = response.status();
+    if !status.is_success() {
+        return ProbeResult {
+            latency_ms: Some(elapsed.as_millis() as u64),
+            error: Some(describe_error(Some(status.as_u16()), "")),
+            ..Default::default()
+        };
+    }
+
+    let body = match response.text().await {
+        Ok(b) => b,
+        Err(e) => {
+            return ProbeResult {
+                latency_ms: Some(elapsed.as_millis() as u64),
+                error: Some(describe_error(None, &e.to_string())),
+                ..Default::default()
+            };
+        }
+    };
+
+    match parse_exit_ip(&body) {
+        Some(ip) => ProbeResult {
+            exit_ip: Some(ip),
+            latency_ms: Some(elapsed.as_millis() as u64),
+            error: None,
+        },
+        None => ProbeResult {
+            latency_ms: Some(elapsed.as_millis() as u64),
+            error: Some("the probe endpoint did not return an IP address".into()),
+        },
+    }
 }
 
 #[cfg(test)]
