@@ -1,5 +1,6 @@
 pub mod config;
 pub mod engine;
+pub mod fw;
 pub mod nodes;
 pub mod store;
 
