@@ -666,19 +666,19 @@ mod tests {
     #[test]
     fn reality_short_id_longer_than_16_chars_is_rejected() {
         // sing-box PANICS on a short_id longer than 16 hex chars.
-        let err = parse_link(&vless("security=reality&pbk=ABCDEF&sid=123456789012345678")).unwrap_err();
+        let err = parse_link(&vless(&format!("security=reality&pbk={PBK}&sid=123456789012345678"))).unwrap_err();
         assert!(err.to_lowercase().contains("short id"), "unexpected error: {err}");
     }
 
     #[test]
     fn reality_short_id_with_odd_length_is_rejected() {
-        let err = parse_link(&vless("security=reality&pbk=ABCDEF&sid=123")).unwrap_err();
+        let err = parse_link(&vless(&format!("security=reality&pbk={PBK}&sid=123"))).unwrap_err();
         assert!(err.to_lowercase().contains("short id"), "unexpected error: {err}");
     }
 
     #[test]
     fn reality_short_id_with_non_hex_is_rejected() {
-        let err = parse_link(&vless("security=reality&pbk=ABCDEF&sid=zzzz")).unwrap_err();
+        let err = parse_link(&vless(&format!("security=reality&pbk={PBK}&sid=zzzz"))).unwrap_err();
         assert!(err.to_lowercase().contains("short id"), "unexpected error: {err}");
     }
 
