@@ -376,7 +376,7 @@ mod tests {
     #[test]
     fn import_links_reports_line_numbers() {
         let text = format!("garbage\nvless://{UUID}@example.com:443#A\nalso-garbage");
-        let (nodes, report) = import_links(text, &[]);
+        let (nodes, report) = import_links(&text, &[]);
         assert_eq!(nodes.len(), 1);
         assert_eq!(report.errors.len(), 2);
         assert_eq!(report.errors[0].line, 1);
@@ -386,7 +386,7 @@ mod tests {
     #[test]
     fn import_links_ignores_blank_lines() {
         let text = format!("\n\nvless://{UUID}@example.com:443#A\n\n");
-        let (nodes, report) = import_links(text, &[]);
+        let (nodes, report) = import_links(&text, &[]);
         assert_eq!(nodes.len(), 1);
         assert!(report.errors.is_empty());
     }
