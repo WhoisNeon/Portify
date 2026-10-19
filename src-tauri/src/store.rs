@@ -6,7 +6,13 @@ use std::path::PathBuf;
 
 pub const SETTINGS_VERSION: u32 = 1;
 
+/// The persisted settings.
+///
+/// `#[serde(default)]` makes every missing field fall back to the struct's
+/// default, so a partial or older settings file still loads with the values
+/// it does contain.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(default)]
 pub struct Settings {
     pub version: u32,
     pub bind_address: String,
@@ -124,8 +130,8 @@ pub fn migrate_settings(raw: Value) -> Result<Settings, String> {
         obj.insert("version".into(), Value::from(SETTINGS_VERSION));
     }
 
-    // Every remaining field falls back to its default when absent, so a
-    // partial settings file still loads.
+    // `#[serde(default)]` fills in every field the file does not carry, so a
+    // partial settings file keeps the values it does have.
     let mut settings: Settings = serde_json::from_value(value).unwrap_or_default();
     settings.version = SETTINGS_VERSION;
     Ok(settings)
