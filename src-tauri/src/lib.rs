@@ -2,6 +2,7 @@ pub mod config;
 pub mod engine;
 pub mod fw;
 pub mod nodes;
+pub mod probe;
 pub mod store;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
