@@ -1,5 +1,7 @@
 use crate::nodes::Node;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
+use std::fs;
 use std::path::PathBuf;
 
 pub const SETTINGS_VERSION: u32 = 1;
@@ -35,28 +37,98 @@ impl Default for Settings {
     }
 }
 
+/// The name of the settings file inside the app directory.
+const SETTINGS_FILE: &str = "settings.json";
+const NODES_FILE: &str = "nodes.json";
+
+/// `%APPDATA%\Portify`, created if it does not exist.
 pub fn app_dir() -> PathBuf {
-    PathBuf::new()
+    let base = dirs::data_dir().unwrap_or_else(|| PathBuf::from("."));
+    let dir = base.join("Portify");
+    let _ = fs::create_dir_all(&dir);
+    dir
+}
+
+fn read_json(path: &PathBuf) -> Option<Value> {
+    let text = fs::read_to_string(path).ok()?;
+    serde_json::from_str(&text).ok()
+}
+
+fn write_json(path: &PathBuf, value: &impl Serialize) -> Result<(), String> {
+    let text = serde_json::to_string_pretty(value)
+        .map_err(|e| format!("could not serialize {}: {e}", path.display()))?;
+    fs::write(path, text).map_err(|e| format!("could not write {}: {e}", path.display()))
 }
 
 pub fn load_nodes() -> Vec<Node> {
-    Vec::new()
+    let path = app_dir().join(NODES_FILE);
+    let Some(raw) = read_json(&path) else {
+        return Vec::new();
+    };
+    // A corrupt nodes file must not stop the app from starting; the user
+    // can re-import their links.
+    serde_json::from_value(raw).unwrap_or_default()
 }
 
-pub fn save_nodes(_nodes: &[Node]) -> Result<(), String> {
-    Ok(())
+pub fn save_nodes(nodes: &[Node]) -> Result<(), String> {
+    write_json(&app_dir().join(NODES_FILE), &nodes)
 }
 
 pub fn load_settings() -> Settings {
-    Settings::default()
+    let path = app_dir().join(SETTINGS_FILE);
+    match read_json(&path) {
+        Some(raw) => migrate_settings(raw).unwrap_or_default(),
+        None => Settings::default(),
+    }
 }
 
-pub fn save_settings(_settings: &Settings) -> Result<(), String> {
-    Ok(())
+pub fn save_settings(settings: &Settings) -> Result<(), String> {
+    write_json(&app_dir().join(SETTINGS_FILE), settings)
 }
 
-pub fn migrate_settings(_raw: serde_json::Value) -> Result<Settings, String> {
-    Ok(Settings::default())
+/// Brings a settings file forward to the current schema.
+///
+/// Each step upgrades one version. A file from a *newer* version is refused
+/// rather than silently misinterpreted.
+pub fn migrate_settings(raw: Value) -> Result<Settings, String> {
+    let version = raw.get("version").and_then(Value::as_u64).unwrap_or(0) as u32;
+
+    if version > SETTINGS_VERSION {
+        return Err(format!(
+            "these settings were written by a newer version of Portify (schema {version}, this build understands {SETTINGS_VERSION}); update Portify or delete {SETTINGS_FILE}"
+        ));
+    }
+
+    let mut value = raw;
+    let mut current = version;
+
+    while current < SETTINGS_VERSION {
+        value = match current {
+            // 0 -> 1: `auto_start_gateway` and `export_protocol` were added.
+            0 => {
+                let mut v = value;
+                if let Some(obj) = v.as_object_mut() {
+                    obj.entry("auto_start_gateway")
+                        .or_insert(Value::Bool(false));
+                    obj.entry("export_protocol")
+                        .or_insert(Value::String("http".into()));
+                }
+                v
+            }
+            _ => value,
+        };
+        current += 1;
+    }
+
+    if let Some(obj) = value.as_object_mut() {
+        obj.insert("version".into(), Value::from(SETTINGS_VERSION));
+    }
+
+    // Every remaining field falls back to its default when absent, so a
+    // partial settings file still loads.
+    let mut settings: Settings = serde_json::from_value(value).unwrap_or_default();
+    settings.version = SETTINGS_VERSION;
+    Ok(settings)
 }
 
 #[cfg(test)]
