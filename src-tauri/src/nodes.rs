@@ -1,3 +1,5 @@
+use base64::Engine;
+use percent_encoding::percent_decode_str;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -85,16 +87,453 @@ pub struct ImportReport {
     pub errors: Vec<LineError>,
 }
 
-pub fn parse_link(_link: &str) -> Result<Node, String> {
-    Err("not implemented".into())
+/// Shadowsocks ciphers sing-box accepts, with the exact key length each one
+/// requires in bytes. `None` means the password is used as-is (not a key).
+const SS_METHODS: &[(&str, Option<usize>)] = &[
+    ("none", None),
+    ("aes-128-gcm", None),
+    ("aes-192-gcm", None),
+    ("aes-256-gcm", None),
+    ("chacha20-ietf-poly1305", None),
+    ("xchacha20-ietf-poly1305", None),
+    ("2022-blake3-aes-128-gcm", Some(16)),
+    ("2022-blake3-aes-256-gcm", Some(32)),
+    ("2022-blake3-chacha20-poly1305", Some(32)),
+    ("aes-128-ctr", None),
+    ("aes-192-ctr", None),
+    ("aes-256-ctr", None),
+    ("aes-128-cfb", None),
+    ("aes-192-cfb", None),
+    ("aes-256-cfb", None),
+    ("rc4-md5", None),
+    ("chacha20-ietf", None),
+    ("xchacha20", None),
+];
+
+/// Reality short IDs are hex and sing-box panics on anything longer than
+/// 16 characters, so the length is checked before the value is ever used.
+const REALITY_SHORT_ID_MAX: usize = 16;
+
+fn decode_b64(input: &str) -> Option<Vec<u8>> {
+    let input = input.trim();
+    base64::engine::general_purpose::STANDARD
+        .decode(input)
+        .ok()
+        .or_else(|| base64::engine::general_purpose::STANDARD_NO_PAD.decode(input).ok())
+        .or_else(|| base64::engine::general_purpose::URL_SAFE.decode(input).ok())
+        .or_else(|| base64::engine::general_purpose::URL_SAFE_NO_PAD.decode(input).ok())
 }
 
-pub fn is_duplicate(_node: &Node, _existing: &[Node]) -> bool {
-    false
+fn percent_decode(input: &str) -> String {
+    percent_decode_str(input).decode_utf8_lossy().to_string()
 }
 
-pub fn import_links(_text: &str, _existing: &[Node]) -> (Vec<Node>, ImportReport) {
-    (Vec::new(), ImportReport::default())
+/// A tiny case-insensitive query-string reader. Values are percent-decoded
+/// per value, so a percent-encoded '&' inside a value does not split it.
+struct Query {
+    pairs: Vec<(String, String)>,
+}
+
+impl Query {
+    fn new(raw: &str) -> Self {
+        let pairs = raw
+            .split('&')
+            .filter(|s| !s.is_empty())
+            .map(|pair| match pair.split_once('=') {
+                Some((k, v)) => (percent_decode(k), percent_decode(v)),
+                None => (percent_decode(pair), String::new()),
+            })
+            .collect();
+        Query { pairs }
+    }
+
+    fn get(&self, key: &str) -> Option<&str> {
+        self.pairs
+            .iter()
+            .find(|(k, _)| k.eq_ignore_ascii_case(key))
+            .map(|(_, v)| v.as_str())
+    }
+
+    fn flag(&self, key: &str) -> bool {
+        matches!(self.get(key), Some("1") | Some("true") | Some("yes"))
+    }
+}
+
+/// Splits a trailing `#fragment` off, percent-decoding it.
+fn split_fragment(input: &str) -> (&str, Option<String>) {
+    match input.split_once('#') {
+        Some((head, frag)) => (head, Some(percent_decode(frag))),
+        None => (input, None),
+    }
+}
+
+/// Splits a trailing `?query` off. The query is *not* decoded here; the
+/// `Query` reader does that per value, so a percent-encoded '&' inside a
+/// value does not split the pair list.
+fn split_query(input: &str) -> (&str, Option<&str>) {
+    match input.split_once('?') {
+        Some((head, query)) => (head, Some(query)),
+        None => (input, None),
+    }
+}
+
+fn split_host_port(hostport: &str) -> Result<(String, u16), String> {
+    // IPv6 literals are written as [::1]:8388.
+    if let Some(rest) = hostport.strip_prefix('[') {
+        let (host, tail) = rest
+            .split_once(']')
+            .ok_or_else(|| "malformed IPv6 host".to_string())?;
+        let port = tail
+            .strip_prefix(':')
+            .ok_or_else(|| "missing port".to_string())?
+            .parse::<u16>()
+            .map_err(|_| "invalid port".to_string())?;
+        if port == 0 {
+            return Err("invalid port: 0".into());
+        }
+        return Ok((host.to_string(), port));
+    }
+    let (host, port) = hostport
+        .rsplit_once(':')
+        .ok_or_else(|| "missing port".to_string())?;
+    if host.is_empty() {
+        return Err("missing host".into());
+    }
+    let port = port
+        .parse::<u16>()
+        .map_err(|_| format!("invalid port: {port}"))?;
+    if port == 0 {
+        return Err("invalid port: 0".into());
+    }
+    Ok((host.to_string(), port))
+}
+
+fn validate_reality_public_key(pbk: &str) -> Result<(), String> {
+    // sing-box expects base64url without padding.
+    let decoded = base64::engine::general_purpose::URL_SAFE_NO_PAD
+        .decode(pbk)
+        .or_else(|_| base64::engine::general_purpose::URL_SAFE.decode(pbk))
+        .map_err(|_| "invalid Reality public key (expected base64url)".to_string())?;
+    if decoded.len() != 32 {
+        return Err(format!(
+            "invalid Reality public key (expected 32 bytes, got {})",
+            decoded.len()
+        ));
+    }
+    Ok(())
+}
+
+fn validate_reality_short_id(sid: &str) -> Result<(), String> {
+    if sid.len() > REALITY_SHORT_ID_MAX {
+        return Err(format!(
+            "invalid Reality short id (maximum {REALITY_SHORT_ID_MAX} hex characters)"
+        ));
+    }
+    if !sid.chars().all(|c| c.is_ascii_hexdigit()) {
+        return Err("invalid Reality short id (expected hex characters)".into());
+    }
+    if sid.len() % 2 != 0 {
+        return Err("invalid Reality short id (hex length must be even)".into());
+    }
+    Ok(())
+}
+
+fn validate_ss_method(method: &str, password: &str) -> Result<(), String> {
+    let entry = SS_METHODS
+        .iter()
+        .find(|(m, _)| *m == method)
+        .ok_or_else(|| format!("unsupported method: {method}"))?;
+    let Some(key_len) = entry.1 else {
+        return Ok(());
+    };
+    // The 2022 ciphers take a base64-encoded key of an exact length.
+    let decoded = base64::engine::general_purpose::STANDARD
+        .decode(password)
+        .or_else(|| base64::engine::general_purpose::STANDARD_NO_PAD.decode(password))
+        .map_err(|_| {
+            format!("invalid password for {method} (expected a base64-encoded {key_len}-byte key)")
+        })?;
+    if decoded.len() != key_len {
+        return Err(format!(
+            "invalid password for {method} (expected a base64-encoded {key_len}-byte key, got {} bytes)",
+            decoded.len()
+        ));
+    }
+    Ok(())
+}
+
+/// Parses one VLESS or Shadowsocks link.
+pub fn parse_link(link: &str) -> Result<Node, String> {
+    let link = link.trim();
+    if link.is_empty() {
+        return Err("empty link".into());
+    }
+    if let Some(rest) = link.strip_prefix("vless://") {
+        parse_vless(rest)
+    } else if let Some(rest) = link.strip_prefix("ss://") {
+        parse_ss(rest)
+    } else {
+        Err(format!(
+            "unsupported scheme (expected vless:// or ss://, got {})",
+            link.split(':').next().unwrap_or("")
+        ))
+    }
+}
+
+/// Parses the part of a `vless://` link that follows the scheme:
+/// `<uuid>@<host>:<port>?<query>#<fragment>`.
+fn parse_vless(rest: &str) -> Result<Node, String> {
+    let (rest, fragment) = split_fragment(rest);
+    let (rest, query) = split_query(rest);
+
+    let (userinfo, hostport) = rest
+        .rsplit_once('@')
+        .ok_or_else(|| "missing '@' between the UUID and the address".to_string())?;
+    let uuid = percent_decode(userinfo);
+    if uuid.is_empty() {
+        return Err("missing UUID".into());
+    }
+    if uuid::Uuid::parse_str(&uuid).is_err() {
+        return Err(format!("invalid UUID: {uuid}"));
+    }
+
+    let (host, port) = split_host_port(hostport)?;
+
+    let q = Query::new(query.unwrap_or(""));
+
+    if let Some(enc) = q.get("encryption") {
+        if !enc.is_empty() && enc != "none" {
+            return Err(format!(
+                "unsupported encryption: {enc} (only \"none\" is supported)"
+            ));
+        }
+    }
+
+    let security = q.get("security").unwrap_or("none").to_string();
+    let mut vless = VlessParams {
+        uuid,
+        flow: q.get("flow").filter(|s| !s.is_empty()).map(str::to_string),
+        server_name: q.get("sni").filter(|s| !s.is_empty()).map(str::to_string),
+        alpn: q
+            .get("alpn")
+            .map(|s| {
+                s.split(',')
+                    .map(|p| p.trim().to_string())
+                    .filter(|p| !p.is_empty())
+                    .collect()
+            })
+            .unwrap_or_default(),
+        insecure: q.flag("allowInsecure") || q.flag("insecure"),
+        fingerprint: q.get("fp").filter(|s| !s.is_empty()).map(str::to_string),
+        reality_public_key: None,
+        reality_short_id: None,
+    };
+
+    if security == "reality" {
+        let pbk = q
+            .get("pbk")
+            .filter(|s| !s.is_empty())
+            .ok_or_else(|| "reality requires the pbk (public key) parameter".to_string())?;
+        validate_reality_public_key(pbk)?;
+        vless.reality_public_key = Some(pbk.to_string());
+
+        if let Some(sid) = q.get("sid").filter(|s| !s.is_empty()) {
+            validate_reality_short_id(sid)?;
+            vless.reality_short_id = Some(sid.to_string());
+        }
+    } else if security != "none" && security != "tls" {
+        return Err(format!("unsupported security: {security}"));
+    }
+
+    let transport = match q.get("type").unwrap_or("tcp") {
+        "tcp" | "" => None,
+        "ws" => Some(Transport {
+            kind: TransportType::Ws,
+            path: q.get("path").map(str::to_string),
+            host: q.get("host").map(str::to_string),
+            service_name: None,
+        }),
+        "grpc" => Some(Transport {
+            kind: TransportType::Grpc,
+            path: None,
+            host: None,
+            service_name: q.get("serviceName").map(str::to_string),
+        }),
+        "http" => Some(Transport {
+            kind: TransportType::Http,
+            path: q.get("path").map(str::to_string),
+            host: q.get("host").map(str::to_string),
+            service_name: None,
+        }),
+        "httpupgrade" => Some(Transport {
+            kind: TransportType::HttpUpgrade,
+            path: q.get("path").map(str::to_string),
+            host: q.get("host").map(str::to_string),
+            service_name: None,
+        }),
+        other => return Err(format!("unsupported transport type: {other}")),
+    };
+
+    let name = q
+        .get("remark")
+        .filter(|s| !s.is_empty())
+        .map(str::to_string)
+        .unwrap_or_else(|| {
+            let frag = fragment.unwrap_or_default();
+            if frag.is_empty() {
+                format!("{host}:{port}")
+            } else {
+                frag
+            }
+        });
+
+    Ok(Node {
+        id: uuid::Uuid::new_v4().to_string(),
+        name,
+        protocol: Protocol::Vless,
+        host,
+        port,
+        vless: Some(vless),
+        ss: None,
+        transport,
+        enabled: true,
+        socks_port: None,
+        http_port: None,
+        status: NodeStatus::Unknown,
+        exit_ip: None,
+        latency_ms: None,
+        last_checked: None,
+    })
+}
+
+/// Parses the part of an `ss://` link that follows the scheme.
+fn parse_ss(rest: &str) -> Result<Node, String> {
+    let (rest, fragment) = split_fragment(rest);
+    let (rest, query) = split_query(rest);
+
+    // SIP002 with userinfo: ss://<base64(method:password)>@host:port
+    // SIP002 fully encoded: ss://<base64(method:password@host:port)>
+    let (method, password, host, port) = match rest.rsplit_once('@') {
+        Some((userinfo, hostport)) => {
+            let decoded = decode_b64(userinfo)
+                .ok_or_else(|| "invalid base64 in the credentials".to_string())?;
+            let decoded = String::from_utf8(decoded)
+                .map_err(|_| "credentials are not valid UTF-8".to_string())?;
+            let (m, p) = decoded
+                .split_once(':')
+                .ok_or_else(|| "credentials must be method:password".to_string())?;
+            let (host, port) = split_host_port(hostport)?;
+            (m.to_string(), p.to_string(), host, port)
+        }
+        None => {
+            let decoded = decode_b64(rest)
+                .ok_or_else(|| "invalid base64 in the link payload".to_string())?;
+            let decoded = String::from_utf8(decoded)
+                .map_err(|_| "link payload is not valid UTF-8".to_string())?;
+            // The payload is method:password@host:port. The password may itself
+            // contain '@', so the last '@' separates the credentials.
+            let (creds, hostport) = decoded
+                .rsplit_once('@')
+                .ok_or_else(|| "link payload must be method:password@host:port".to_string())?;
+            let (m, p) = creds
+                .split_once(':')
+                .ok_or_else(|| "credentials must be method:password".to_string())?;
+            let (host, port) = split_host_port(hostport)?;
+            (m.to_string(), p.to_string(), host, port)
+        }
+    };
+
+    let method = method.trim().to_string();
+    let password = percent_decode(&password);
+
+    let q = Query::new(query.unwrap_or(""));
+    let plugin = q.get("plugin").filter(|s| !s.is_empty()).map(str::to_string);
+    let plugin_opts = q.get("plugin_opts").filter(|s| !s.is_empty()).map(str::to_string);
+
+    validate_ss_method(&method, &password)?;
+
+    let name = fragment
+        .filter(|f| !f.is_empty())
+        .unwrap_or_else(|| format!("{host}:{port}"));
+
+    Ok(Node {
+        id: uuid::Uuid::new_v4().to_string(),
+        name,
+        protocol: Protocol::Shadowsocks,
+        host,
+        port,
+        vless: None,
+        ss: Some(ShadowsocksParams {
+            method,
+            password,
+            plugin,
+            plugin_opts,
+        }),
+        transport: None,
+        enabled: true,
+        socks_port: None,
+        http_port: None,
+        status: NodeStatus::Unknown,
+        exit_ip: None,
+        latency_ms: None,
+        last_checked: None,
+    })
+}
+
+/// A node is a duplicate when it points at the same server with the same
+/// credentials. The name is deliberately not part of the key.
+pub fn is_duplicate(node: &Node, existing: &[Node]) -> bool {
+    existing.iter().any(|e| {
+        e.protocol == node.protocol
+            && e.host == node.host
+            && e.port == node.port
+            && credentials_of(e) == credentials_of(node)
+    })
+}
+
+fn credentials_of(node: &Node) -> String {
+    match node.protocol {
+        Protocol::Vless => node
+            .vless
+            .as_ref()
+            .map(|v| format!("vless:{}", v.uuid))
+            .unwrap_or_default(),
+        Protocol::Shadowsocks => node
+            .ss
+            .as_ref()
+            .map(|s| format!("ss:{}:{}", s.method, s.password))
+            .unwrap_or_default(),
+    }
+}
+
+/// Parses a block of text, one link per line, dropping duplicates against
+/// `existing` and against the nodes produced earlier in the same batch.
+pub fn import_links(text: &str, existing: &[Node]) -> (Vec<Node>, ImportReport) {
+    let mut report = ImportReport::default();
+    let mut accepted: Vec<Node> = existing.to_vec();
+
+    for (idx, line) in text.lines().enumerate() {
+        let line = line.trim();
+        if line.is_empty() {
+            continue;
+        }
+        match parse_link(line) {
+            Ok(node) => {
+                if is_duplicate(&node, &accepted) {
+                    report.duplicates += 1;
+                } else {
+                    accepted.push(node.clone());
+                    report.imported += 1;
+                }
+            }
+            Err(message) => report.errors.push(LineError {
+                line: idx + 1,
+                message,
+            }),
+        }
+    }
+
+    (accepted[existing.len()..].to_vec(), report)
 }
 
 #[cfg(test)]
