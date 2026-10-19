@@ -28,6 +28,33 @@ jobs:
         run: cargo test --manifest-path src-tauri/Cargo.toml
       - name: Clippy
         run: cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings
+      - name: Download sing-box
+        if: success()
+        shell: pwsh
+        run: |
+          $version = "1.14.3"
+          $url = "https://github.com/SagerNet/sing-box/releases/download/v$version/sing-box-$version-windows-amd64.zip"
+          Invoke-WebRequest -Uri $url -OutFile sing-box.zip
+          Expand-Archive -Path sing-box.zip -DestinationPath sing-box-extract -Force
+          $sb = (Get-ChildItem -Path sing-box-extract -Recurse -Filter "sing-box.exe" | Select-Object -First 1).FullName
+          & $sb version
+      - name: Validate the generated config with sing-box
+        if: success()
+        shell: pwsh
+        run: |
+          $sb = (Get-ChildItem -Path sing-box-extract -Recurse -Filter "sing-box.exe" | Select-Object -First 1).FullName
+          & $sb check -c src-tauri/target/singbox-fixture.json
+          if ($LASTEXITCODE -ne 0) { throw "sing-box rejected the generated config" }
+      - name: Verify the pinned sing-box digest
+        if: success()
+        shell: pwsh
+        run: |
+          $exe = (Get-ChildItem -Path sing-box-extract -Recurse -Filter "sing-box.exe" | Select-Object -First 1).FullName
+          $hash = (Get-FileHash -Path $exe -Algorithm SHA256).Hash.ToLower()
+          $expected = "5c19bb3f8c12d4e85b3d47fe63123a7624b314b58dd7a8e32f51004f1c4d2faf"
+          Write-Host "downloaded: $hash"
+          Write-Host "expected:   $expected"
+          if ($hash -ne $expected) { throw "sing-box checksum mismatch" }
       # The formatting is applied and pushed back rather than failing the
       # run: the contributor may not have a Rust toolchain locally, and a
       # formatting difference should not hide a real test failure.
