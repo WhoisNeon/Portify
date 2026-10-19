@@ -47,7 +47,8 @@ fn run_elevated(args: &str) -> Result<(), String> {
     let stderr = String::from_utf8_lossy(&output.stderr);
     let detail = stderr.trim();
     Err(if detail.is_empty() {
-        "the firewall rule could not be added; the UAC prompt was declined or netsh failed".to_string()
+        "the firewall rule could not be added; the UAC prompt was declined or netsh failed"
+            .to_string()
     } else {
         format!("the firewall rule could not be added: {detail}")
     })
@@ -82,7 +83,9 @@ pub fn remove_rule() -> Result<(), String> {
     if !rule_exists() {
         return Ok(());
     }
-    run_elevated(&format!("advfirewall firewall delete rule name=\"{RULE_NAME}\""))
+    run_elevated(&format!(
+        "advfirewall firewall delete rule name=\"{RULE_NAME}\""
+    ))
 }
 
 #[cfg(test)]
