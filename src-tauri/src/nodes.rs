@@ -232,7 +232,7 @@ fn validate_reality_short_id(sid: &str) -> Result<(), String> {
     if !sid.chars().all(|c| c.is_ascii_hexdigit()) {
         return Err("invalid Reality short id (expected hex characters)".into());
     }
-    if sid.len() % 2 != 0 {
+    if !sid.len().is_multiple_of(2) {
         return Err("invalid Reality short id (hex length must be even)".into());
     }
     Ok(())
@@ -301,12 +301,13 @@ fn parse_vless(rest: &str) -> Result<Node, String> {
 
     let q = Query::new(query.unwrap_or(""));
 
-    if let Some(enc) = q.get("encryption") {
-        if !enc.is_empty() && enc != "none" {
-            return Err(format!(
-                "unsupported encryption: {enc} (only \"none\" is supported)"
-            ));
-        }
+    if let Some(enc) = q.get("encryption")
+        && !enc.is_empty()
+        && enc != "none"
+    {
+        return Err(format!(
+            "unsupported encryption: {enc} (only \"none\" is supported)"
+        ));
     }
 
     let security = q.get("security").unwrap_or("none").to_string();
