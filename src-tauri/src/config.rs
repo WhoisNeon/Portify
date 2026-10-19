@@ -520,15 +520,12 @@ mod tests {
         ];
         for (kind, expected) in cases {
             let mut node = vless_node("t");
-            node.transport = match expected {
-                None => None,
-                Some(_) => Some(Transport {
-                    kind,
-                    path: Some("/p".into()),
-                    host: Some("h".into()),
-                    service_name: Some("s".into()),
-                }),
-            };
+            node.transport = expected.map(|_| Transport {
+                kind,
+                path: Some("/p".into()),
+                host: Some("h".into()),
+                service_name: Some("s".into()),
+            });
             let out = config_to_singbox_json(&node, "n0");
             match expected {
                 None => assert!(
