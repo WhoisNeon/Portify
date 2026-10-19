@@ -489,7 +489,10 @@ on:
 jobs:
   rust:
     name: Rust core
-    runs-on: ubuntu-latest
+    # Portify only ships for Windows, and the Tauri crate needs GTK system
+    # libraries to build on Linux. Testing on the shipping platform avoids
+    # installing them and matches how the app is actually run.
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -517,7 +520,7 @@ jobs:
       - run: npm ci
       - run: npm run build
 
-  windows:
+  desktop:
     name: Windows desktop build
     # The full Tauri build is slow, so it runs on the branches that matter
     # for shipping rather than on every push.
@@ -2212,17 +2215,16 @@ Then add a CI step to `.github/workflows/ci.yml` in the `rust` job, after the te
 ```yaml
       - name: Validate the generated config with sing-box
         if: success()
+        shell: pwsh
         run: |
-          set -euo pipefail
-          VERSION=1.14.3
-          curl -sSL -o sing-box.zip \
-            "https://github.com/SagerNet/sing-box/releases/download/v${VERSION}/sing-box-${VERSION}-linux-amd64.tar.gz"
-          tar -xzf sing-box.zip
-          SB=$(find . -name sing-box -type f | head -1)
-          echo "$SB"
-          "$SB" version
-          "$SB" check -c src-tauri/target/singbox-fixture.json
-```
+          $version = "1.14.3"
+          $url = "https://github.com/SagerNet/sing-box/releases/download/v$version/sing-box-$version-windows-amd64.zip"
+          Invoke-WebRequest -Uri $url -OutFile sing-box.zip
+          Expand-Archive -Path sing-box.zip -DestinationPath sing-box-extract -Force
+          $sb = (Get-ChildItem -Path sing-box-extract -Recurse -Filter "sing-box.exe" | Select-Object -First 1).FullName
+          & $sb version
+          & $sb check -c src-tauri/target/singbox-fixture.json
+          if ($LASTEXITCODE -ne 0) { throw "sing-box rejected the generated config" }
 
 Expected: `sing-box check` prints nothing and exits 0. If it fails, the error names the offending key — fix `config.rs` accordingly.
 
@@ -3001,21 +3003,18 @@ sing-box" step:
 ```yaml
       - name: Verify the pinned sing-box digest
         if: success()
+        shell: pwsh
         run: |
-          set -euo pipefail
-          VERSION=1.14.3
-          curl -sSL -o sing-box.zip \
-            "https://github.com/SagerNet/sing-box/releases/download/v${VERSION}/sing-box-${VERSION}-linux-amd64.tar.gz"
-          tar -xzf sing-box.zip
-          SB=$(find . -name sing-box -type f | head -1)
-          echo "amd64 (linux) digest — the windows binary has a different one:"
-          sha256sum "$SB"
-          echo "The pinned windows-amd64 digest is 5c19bb3f8c12d4e85b3d47fe63123a7624b314b58dd7a8e32f51004f1c4d2faf"
-```
+          $exe = (Get-ChildItem -Path sing-box-extract -Recurse -Filter "sing-box.exe" | Select-Object -First 1).FullName
+          $hash = (Get-FileHash -Path $exe -Algorithm SHA256).Hash.ToLower()
+          $expected = "5c19bb3f8c12d4e85b3d47fe63123a7624b314b58dd7a8e32f51004f1c4d2faf"
+          Write-Host "downloaded: $hash"
+          Write-Host "expected:   $expected"
+          if ($hash -ne $expected) { throw "sing-box checksum mismatch" }
 
-The linux digest differs from the windows one — that is expected and the step
-only proves the download URL pattern works. The windows digest is verified by
-the release workflow, which is what actually ships the binary.
+This step verifies the *exact* digest that the release workflow pins, against
+the *exact* binary that ships. If the upstream release is ever replaced, this
+step fails before a broken binary can be published.
 
 - [ ] **Step 7: Commit**
 

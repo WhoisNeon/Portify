@@ -9,7 +9,10 @@ on:
 jobs:
   rust:
     name: Rust core
-    runs-on: ubuntu-latest
+    # Portify only ships for Windows, and the Tauri crate needs GTK system
+    # libraries to build on Linux. Testing on the shipping platform avoids
+    # installing them and matches how the app is actually run.
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -37,7 +40,7 @@ jobs:
       - run: npm ci
       - run: npm run build
 
-  windows:
+  desktop:
     name: Windows desktop build
     # The full Tauri build is slow, so it runs on the branches that matter
     # for shipping rather than on every push.
