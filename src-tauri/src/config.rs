@@ -1,5 +1,5 @@
-use crate::nodes::{Node, Protocol, TransportType};
-use serde_json::Value;
+use crate::nodes::{Node, Protocol, Transport, TransportType, VlessParams};
+use serde_json::{Map, Value, json};
 
 /// The port each node was assigned: (node_id, socks_port, http_port).
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -7,21 +7,242 @@ pub struct PortPlan {
     pub assignments: Vec<(String, u16, u16)>,
 }
 
+impl PortPlan {
+    fn ports_for(&self, node_id: &str) -> Option<(u16, u16)> {
+        self.assignments
+            .iter()
+            .find(|(id, _, _)| id == node_id)
+            .map(|(_, s, h)| (*s, *h))
+    }
+}
+
+/// Assigns a SOCKS port and an HTTP port to every enabled node.
+///
+/// Disabled nodes consume no ports. The two ranges must not overlap, and the
+/// number of enabled nodes must fit inside `range`.
 pub fn allocate_ports(
-    _nodes: &[Node],
-    _socks_start: u16,
-    _http_start: u16,
-    _range: u16,
+    nodes: &[Node],
+    socks_start: u16,
+    http_start: u16,
+    range: u16,
 ) -> Result<PortPlan, String> {
-    Err("not implemented".into())
+    let enabled: Vec<&Node> = nodes.iter().filter(|n| n.enabled).collect();
+
+    if range == 0 {
+        return Err("the port range must be at least 1".into());
+    }
+    if enabled.len() as u16 > range {
+        return Err(format!(
+            "{} enabled nodes do not fit in a port range of {}; raise the range or disable some nodes",
+            enabled.len(),
+            range
+        ));
+    }
+
+    let socks_end = socks_start as u32 + range as u32 - 1;
+    let http_end = http_start as u32 + range as u32 - 1;
+    if socks_end > 65535 || http_end > 65535 {
+        return Err("the port range extends past port 65535".into());
+    }
+
+    // The ranges must not overlap, or one node's HTTP inbound would collide
+    // with another node's SOCKS inbound.
+    if socks_start <= http_end && http_start <= socks_end {
+        return Err(format!(
+            "the SOCKS range {socks_start}-{socks_end} and the HTTP range {http_start}-{http_end} overlap"
+        ));
+    }
+
+    let mut assignments = Vec::with_capacity(enabled.len());
+    for (i, node) in enabled.iter().enumerate() {
+        let offset = i as u16;
+        assignments.push((node.id.clone(), socks_start + offset, http_start + offset));
+    }
+
+    Ok(PortPlan { assignments })
 }
 
-pub fn config_to_singbox_json(_node: &Node, _tag: &str) -> Value {
-    Value::Null
+/// Builds the sing-box outbound object for one node.
+pub fn config_to_singbox_json(node: &Node, tag: &str) -> Value {
+    let mut out = Map::new();
+    out.insert("tag".into(), json!(tag));
+    out.insert("server".into(), json!(node.host));
+    out.insert("server_port".into(), json!(node.port));
+
+    match node.protocol {
+        Protocol::Vless => {
+            out.insert("type".into(), json!("vless"));
+            let v = node
+                .vless
+                .as_ref()
+                .expect("a vless node always has vless params");
+            out.insert("uuid".into(), json!(v.uuid));
+            if let Some(flow) = &v.flow {
+                out.insert("flow".into(), json!(flow));
+            }
+            if let Some(t) = &node.transport {
+                out.insert("transport".into(), transport_json(t));
+            }
+            out.insert("tls".into(), tls_json(v));
+        }
+        Protocol::Shadowsocks => {
+            out.insert("type".into(), json!("shadowsocks"));
+            let s = node
+                .ss
+                .as_ref()
+                .expect("a shadowsocks node always has ss params");
+            out.insert("method".into(), json!(s.method));
+            out.insert("password".into(), json!(s.password));
+            if let Some(plugin) = &s.plugin {
+                out.insert("plugin".into(), json!(plugin));
+                if let Some(opts) = &s.plugin_opts {
+                    out.insert("plugin_opts".into(), json!(opts));
+                }
+            }
+        }
+    }
+
+    Value::Object(out)
 }
 
-pub fn build_config(_nodes: &[Node], _plan: &PortPlan, _bind: &str, _log_level: &str) -> String {
-    String::new()
+fn transport_json(t: &Transport) -> Value {
+    let mut m = Map::new();
+    match t.kind {
+        TransportType::Tcp => {}
+        TransportType::Ws => {
+            m.insert("type".into(), json!("ws"));
+            if let Some(path) = &t.path {
+                m.insert("path".into(), json!(path));
+            }
+            if let Some(host) = &t.host {
+                m.insert("headers".into(), json!({ "Host": host }));
+            }
+        }
+        TransportType::Grpc => {
+            m.insert("type".into(), json!("grpc"));
+            if let Some(name) = &t.service_name {
+                m.insert("service_name".into(), json!(name));
+            }
+        }
+        TransportType::Http => {
+            m.insert("type".into(), json!("http"));
+            if let Some(path) = &t.path {
+                m.insert("path".into(), json!(path));
+            }
+            if let Some(host) = &t.host {
+                m.insert("host".into(), json!([host]));
+            }
+        }
+        TransportType::HttpUpgrade => {
+            m.insert("type".into(), json!("httpupgrade"));
+            if let Some(path) = &t.path {
+                m.insert("path".into(), json!(path));
+            }
+            if let Some(host) = &t.host {
+                m.insert("host".into(), json!(host));
+            }
+        }
+    }
+    Value::Object(m)
+}
+
+fn tls_json(v: &VlessParams) -> Value {
+    let mut m = Map::new();
+    let has_reality = v.reality_public_key.is_some();
+
+    // TLS is on when the link asked for it, when a server name is set, or
+    // when Reality is used.
+    let enabled = has_reality || v.server_name.is_some();
+    m.insert("enabled".into(), json!(enabled));
+
+    if let Some(sni) = &v.server_name {
+        m.insert("server_name".into(), json!(sni));
+    }
+    if v.insecure {
+        m.insert("insecure".into(), json!(true));
+    }
+    if !v.alpn.is_empty() {
+        m.insert("alpn".into(), json!(v.alpn));
+    }
+    if has_reality {
+        let mut r = Map::new();
+        r.insert("enabled".into(), json!(true));
+        r.insert("public_key".into(), json!(v.reality_public_key));
+        if let Some(sid) = &v.reality_short_id {
+            r.insert("short_id".into(), json!(sid));
+        }
+        m.insert("reality".into(), Value::Object(r));
+    }
+    if let Some(fp) = &v.fingerprint {
+        let mut u = Map::new();
+        u.insert("enabled".into(), json!(true));
+        u.insert("fingerprint".into(), json!(fp));
+        m.insert("utls".into(), Value::Object(u));
+    }
+
+    Value::Object(m)
+}
+
+/// Builds the full sing-box configuration.
+pub fn build_config(nodes: &[Node], plan: &PortPlan, bind: &str, log_level: &str) -> String {
+    let enabled: Vec<&Node> = nodes.iter().filter(|n| n.enabled).collect();
+
+    let mut inbounds = Vec::new();
+    let mut outbounds = Vec::new();
+    let mut rules = Vec::new();
+
+    for (i, node) in enabled.iter().enumerate() {
+        let tag = format!("n{i}");
+        let socks_tag = format!("socks-{i}");
+        let http_tag = format!("http-{i}");
+
+        let (socks_port, http_port) = plan.ports_for(&node.id).unwrap_or((0, 0));
+
+        inbounds.push(json!({
+            "type": "socks",
+            "tag": socks_tag,
+            "listen": bind,
+            "listen_port": socks_port,
+        }));
+        inbounds.push(json!({
+            "type": "http",
+            "tag": http_tag,
+            "listen": bind,
+            "listen_port": http_port,
+        }));
+
+        outbounds.push(config_to_singbox_json(node, &tag));
+
+        rules.push(json!({
+            "inbound": [socks_tag, http_tag],
+            "action": "route",
+            "outbound": tag,
+        }));
+    }
+
+    outbounds.insert(0, json!({ "type": "direct", "tag": "direct" }));
+
+    let config = json!({
+        "log": {
+            "level": log_level,
+            "timestamp": true,
+        },
+        "dns": {
+            "servers": [
+                { "type": "local", "tag": "local" },
+            ],
+            "final": "local",
+        },
+        "inbounds": inbounds,
+        "outbounds": outbounds,
+        "route": {
+            "rules": rules,
+            "final": "direct",
+            "auto_detect_interface": true,
+        },
+    });
+
+    serde_json::to_string_pretty(&config).unwrap_or_default()
 }
 
 #[cfg(test)]
