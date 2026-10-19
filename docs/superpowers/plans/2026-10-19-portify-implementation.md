@@ -2225,6 +2225,7 @@ Then add a CI step to `.github/workflows/ci.yml` in the `rust` job, after the te
           & $sb version
           & $sb check -c src-tauri/target/singbox-fixture.json
           if ($LASTEXITCODE -ne 0) { throw "sing-box rejected the generated config" }
+```
 
 Expected: `sing-box check` prints nothing and exits 0. If it fails, the error names the offending key — fix `config.rs` accordingly.
 
@@ -3011,6 +3012,7 @@ sing-box" step:
           Write-Host "downloaded: $hash"
           Write-Host "expected:   $expected"
           if ($hash -ne $expected) { throw "sing-box checksum mismatch" }
+```
 
 This step verifies the *exact* digest that the release workflow pins, against
 the *exact* binary that ships. If the upstream release is ever replaced, this
