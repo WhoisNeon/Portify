@@ -1,3 +1,4 @@
+pub mod config;
 pub mod nodes;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
