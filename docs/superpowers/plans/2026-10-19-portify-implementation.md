@@ -3570,6 +3570,8 @@ Commands (all return `Result<_, String>` where they can fail):
 | `copy_endpoints` | `protocol: Option<String>` | `()` |
 | `get_singbox_path` | — | `String` |
 | `update_singbox` | — | `String` |
+| `get_autostart` | — | `bool` |
+| `set_autostart` | `enabled: bool` | `()` |
 
 `GatewayStatus` is `serde_json::Value` with this shape:
 
@@ -3806,8 +3808,10 @@ pub fn get_settings() -> Settings {
 }
 
 #[tauri::command]
-pub fn save_settings(settings: Settings) -> Result<(), String> {
-    store::save_settings(&settings)
+pub fn save_settings(app: tauri::AppHandle, settings: Settings) -> Result<(), String> {
+    store::save_settings(&settings)?;
+    // Keep the Windows start-with-Windows entry in step with the setting.
+    set_autostart(app, settings.auto_start)
 }
 ```
 
@@ -4013,6 +4017,27 @@ pub async fn update_singbox() -> Result<String, String> {
     let path = engine::download_singbox().await?;
     Ok(path.to_string_lossy().to_string())
 }
+
+/// Whether Portify is registered to start with Windows.
+#[tauri::command]
+pub fn get_autostart(app: tauri::AppHandle) -> Result<bool, String> {
+    use tauri_plugin_autostart::ManagerExt;
+    let manager = app.autolaunch();
+    manager.is_enabled().map_err(|e| e.to_string())
+}
+
+/// Registers or unregisters Portify's start-with-Windows entry.
+#[tauri::command]
+pub fn set_autostart(app: tauri::AppHandle, enabled: bool) -> Result<(), String> {
+    use tauri_plugin_autostart::ManagerExt;
+    let manager = app.autolaunch();
+    let result = if enabled {
+        manager.enable()
+    } else {
+        manager.disable()
+    };
+    result.map_err(|e| e.to_string())
+}
 ```
 
 The `copy_endpoints` command needs the app handle to reach the clipboard plugin,
@@ -4043,6 +4068,7 @@ pub mod probe;
 pub mod store;
 
 use cmd::AppState;
+use tauri::Emitter;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -4075,7 +4101,42 @@ pub fn run() {
             cmd::copy_endpoints,
             cmd::get_singbox_path,
             cmd::update_singbox,
+            cmd::get_autostart,
+            cmd::set_autostart,
         ])
+        .setup(|app| {
+            // Start the gateway on launch when the user asked for it, and
+            // make sure a firewall rule from a previous run does not linger.
+            let handle = app.handle().clone();
+            let settings = store::load_settings();
+            if fw::needs_firewall_rule(&settings.bind_address) {
+                let _ = fw::remove_rule();
+            }
+            if settings.auto_start_gateway {
+                tauri::async_runtime::spawn(async move {
+                    if let Err(e) = cmd::start_gateway(handle.clone()).await {
+                        let _ = handle.emit("portify://status", cmd::GatewayStatus {
+                            state: "error".into(),
+                            bind_address: settings.bind_address.clone(),
+                            node_count: 0,
+                            error: Some(e),
+                        });
+                    }
+                });
+            }
+            Ok(())
+        })
+        .on_window_event(|window, event| {
+            // Remove the firewall rule when the app closes, so a closed
+            // Portify never leaves an open rule behind.
+            if let tauri::WindowEvent::Destroyed = event {
+                let settings = store::load_settings();
+                if fw::needs_firewall_rule(&settings.bind_address) {
+                    let _ = fw::remove_rule();
+                }
+                let _ = window;
+            }
+        })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
@@ -4286,6 +4347,8 @@ export const api = {
   copyEndpoints: (protocol?: string) => invoke<void>("copy_endpoints", { protocol }),
   getSingboxPath: () => invoke<string>("get_singbox_path"),
   updateSingbox: () => invoke<string>("update_singbox"),
+  getAutostart: () => invoke<boolean>("get_autostart"),
+  setAutostart: (enabled: boolean) => invoke<void>("set_autostart", { enabled }),
 };
 
 export const onLog = (handler: (entry: LogLine) => void) =>
@@ -4901,6 +4964,8 @@ export default function SettingsPanel({ settings, onSaved }: Props) {
     setMessage(null);
     try {
       await api.saveSettings(draft);
+      // The Rust side keeps the Windows registry entry in step with the
+      // saved setting, so there is nothing extra to do here.
       onSaved(draft);
       setMessage("Settings saved.");
     } catch (e) {
@@ -5722,6 +5787,109 @@ git push
 ```
 
 Expected: CI stays green.
+
+---
+
+## Task 12: End-to-end verification on a clean machine
+
+The final check: does a released artifact actually work on a machine with no Rust, no Node.js and no development tools?
+
+**Files:**
+- No source changes. This task verifies the released artifacts.
+
+- [ ] **Step 1: Confirm the release assets are downloadable**
+
+```bash
+VERSION=$(node -p "require('./package.json').version")
+for asset in "Portify_${VERSION}_x64-setup.exe" "Portify_${VERSION}_x64_portable.exe" "Portify_${VERSION}_x64_portable.zip"; do
+  url="https://github.com/WhoisNeon/Portify/releases/download/v${VERSION}/${asset}"
+  code=$(curl -sL -o /dev/null -w '%{http_code}' "$url")
+  echo "$code  $asset"
+done
+```
+
+Expected: `200` for all three.
+
+- [ ] **Step 2: Download and inspect the self-contained ZIP**
+
+```bash
+mkdir -p /tmp/portify-verify && cd /tmp/portify-verify
+VERSION=$(node -p "require('C:/Users/x14ne/OneDrive/Desktop/Projects/Apps/Portify/package.json').version")
+curl -sL -o portify.zip "https://github.com/WhoisNeon/Portify/releases/download/v${VERSION}/Portify_${VERSION}_x64_portable.zip"
+"/c/Program Files/7-Zip/7z.exe" x -y portify.zip >/dev/null
+ls -R
+```
+
+Expected: `portify.exe`, `sing-box/sing-box.exe` and `README.txt`.
+
+- [ ] **Step 3: Verify the bundled sing-box matches the pinned digest**
+
+```bash
+cd /tmp/portify-verify
+certutil -hashfile sing-box/sing-box.exe SHA256
+```
+
+Expected: `5c19bb3f8c12d4e85b3d47fe63123a7624b314b58dd7a8e32f51004f1c4d2faf`.
+
+- [ ] **Step 4: Run the portable build and confirm it starts**
+
+```bash
+cd /tmp/portify-verify
+./portify.exe &
+sleep 8
+tasklist //FI "IMAGENAME eq portify.exe"
+```
+
+Expected: the process is listed. Close it with the window's close button, or:
+
+```bash
+taskkill //IM portify.exe //F
+```
+
+- [ ] **Step 5: Confirm the app works with no toolchain installed**
+
+The point of this check is that the machine has no Rust and no Node.js in
+`PATH` for the app to use. Verify:
+
+```bash
+where cargo 2>&1 | head -1
+where node 2>&1 | head -1
+```
+
+Expected: both report "not found". Portify must still launch and find its
+bundled sing-box, because the ZIP carries it.
+
+- [ ] **Step 6: Verify the installer**
+
+```bash
+cd /tmp/portify-verify
+curl -sL -o setup.exe "https://github.com/WhoisNeon/Portify/releases/download/v${VERSION}/Portify_${VERSION}_x64-setup.exe"
+ls -la setup.exe
+```
+
+Run it and confirm the install completes and the shortcut appears. The
+installer bundles the WebView2 bootstrapper, so it works on a machine without
+the WebView2 runtime.
+
+- [ ] **Step 7: Record the verification in the README**
+
+Add a short "Verified" section to the README listing the release that was
+tested and the date:
+
+```markdown
+## Verified
+
+The v0.1.0 artifacts were installed and run on a clean Windows 11 machine
+with no Rust and no Node.js installed (2026-10-19).
+```
+
+- [ ] **Step 8: Commit and push**
+
+```bash
+git add -A
+git commit -m "docs: record the artifact verification"
+git push
+```
 
 ---
 
