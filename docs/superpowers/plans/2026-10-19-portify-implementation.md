@@ -495,6 +495,9 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
       - name: Format
         run: cargo fmt --check --manifest-path src-tauri/Cargo.toml
       - name: Clippy
@@ -516,6 +519,9 @@ jobs:
 
   windows:
     name: Windows desktop build
+    # The full Tauri build is slow, so it runs on the branches that matter
+    # for shipping rather than on every push.
+    if: github.ref == 'refs/heads/master' || github.event_name == 'pull_request'
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -4284,13 +4290,8 @@ export interface LogLine {
 }
 ```
 
-**Note on `NodeStatus`:** Rust's `NodeStatus` is an enum with `Unknown`, `Ok` and
-`Failed(String)`, which serde serializes as an externally tagged enum:
-`{"Unknown": null}`, `{"Ok": null}`, `{"Failed": "message"}`. Change the Rust
-type so the JSON matches the TypeScript above — an internally tagged enum is
-easier for the frontend to consume:
-
-In `src-tauri/src/nodes.rs`, change:
+**Note on `NodeStatus`:** Task 2 already defines it as an internally tagged
+serde enum, so the JSON matches the TypeScript above:
 
 ```rust
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -4306,17 +4307,8 @@ pub enum NodeStatus {
 internally tagged enums require the variant's content to serialize as a map,
 so a newtype variant holding a `String` fails at runtime with *"cannot
 serialize tagged newtype variant NodeStatus::Failed containing a string"*.
-A struct variant is correct. The JSON becomes `{"kind":"unknown"}`,
-`{"kind":"ok"}`, `{"kind":"failed","message":"..."}`.
-
-Update the two places that construct a `Failed` status accordingly:
-
-```rust
-node.status = match &result.error {
-    None => NodeStatus::Ok,
-    Some(message) => NodeStatus::Failed { message: message.clone() },
-};
-```
+The JSON is `{"kind":"unknown"}`, `{"kind":"ok"}`,
+`{"kind":"failed","message":"..."}`.
 
 `src/lib/api.ts` — the only place that talks to Tauri:
 
