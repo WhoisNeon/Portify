@@ -119,9 +119,17 @@ fn decode_b64(input: &str) -> Option<Vec<u8>> {
     base64::engine::general_purpose::STANDARD
         .decode(input)
         .ok()
-        .or_else(|| base64::engine::general_purpose::STANDARD_NO_PAD.decode(input).ok())
+        .or_else(|| {
+            base64::engine::general_purpose::STANDARD_NO_PAD
+                .decode(input)
+                .ok()
+        })
         .or_else(|| base64::engine::general_purpose::URL_SAFE.decode(input).ok())
-        .or_else(|| base64::engine::general_purpose::URL_SAFE_NO_PAD.decode(input).ok())
+        .or_else(|| {
+            base64::engine::general_purpose::URL_SAFE_NO_PAD
+                .decode(input)
+                .ok()
+        })
 }
 
 fn percent_decode(input: &str) -> String {
@@ -427,8 +435,8 @@ fn parse_ss(rest: &str) -> Result<Node, String> {
             (m.to_string(), p.to_string(), host, port)
         }
         None => {
-            let decoded = decode_b64(rest)
-                .ok_or_else(|| "invalid base64 in the link payload".to_string())?;
+            let decoded =
+                decode_b64(rest).ok_or_else(|| "invalid base64 in the link payload".to_string())?;
             let decoded = String::from_utf8(decoded)
                 .map_err(|_| "link payload is not valid UTF-8".to_string())?;
             // The payload is method:password@host:port. The password may itself
@@ -448,8 +456,14 @@ fn parse_ss(rest: &str) -> Result<Node, String> {
     let password = percent_decode(&password);
 
     let q = Query::new(query.unwrap_or(""));
-    let plugin = q.get("plugin").filter(|s| !s.is_empty()).map(str::to_string);
-    let plugin_opts = q.get("plugin_opts").filter(|s| !s.is_empty()).map(str::to_string);
+    let plugin = q
+        .get("plugin")
+        .filter(|s| !s.is_empty())
+        .map(str::to_string);
+    let plugin_opts = q
+        .get("plugin_opts")
+        .filter(|s| !s.is_empty())
+        .map(str::to_string);
 
     validate_ss_method(&method, &password)?;
 
@@ -552,7 +566,9 @@ mod tests {
 
     #[test]
     fn parses_minimal_vless() {
-        let n = parse_link("vless://00000000-0000-4000-8000-000000000000@example.com:443#My%20Node").unwrap();
+        let n =
+            parse_link("vless://00000000-0000-4000-8000-000000000000@example.com:443#My%20Node")
+                .unwrap();
         assert_eq!(n.protocol, Protocol::Vless);
         assert_eq!(n.host, "example.com");
         assert_eq!(n.port, 443);
@@ -564,7 +580,10 @@ mod tests {
 
     #[test]
     fn parses_vless_with_tls_and_sni() {
-        let n = parse_link(&vless("security=tls&sni=cdn.example.com&alpn=h2%2Chttp%2F1.1")).unwrap();
+        let n = parse_link(&vless(
+            "security=tls&sni=cdn.example.com&alpn=h2%2Chttp%2F1.1",
+        ))
+        .unwrap();
         let v = n.vless.unwrap();
         assert_eq!(v.server_name.as_deref(), Some("cdn.example.com"));
         assert_eq!(v.alpn, vec!["h2".to_string(), "http/1.1".to_string()]);
@@ -572,7 +591,10 @@ mod tests {
 
     #[test]
     fn parses_vless_with_ws_transport() {
-        let n = parse_link(&vless("type=ws&security=tls&path=%2Fws&host=cdn.example.com")).unwrap();
+        let n = parse_link(&vless(
+            "type=ws&security=tls&path=%2Fws&host=cdn.example.com",
+        ))
+        .unwrap();
         let t = n.transport.unwrap();
         assert_eq!(t.kind, TransportType::Ws);
         assert_eq!(t.path.as_deref(), Some("/ws"));
@@ -636,51 +658,78 @@ mod tests {
     #[test]
     fn rejects_vless_with_bad_port() {
         let err = parse_link(&format!("vless://{UUID}@example.com:0#X")).unwrap_err();
-        assert!(err.to_lowercase().contains("port"), "unexpected error: {err}");
+        assert!(
+            err.to_lowercase().contains("port"),
+            "unexpected error: {err}"
+        );
     }
 
     #[test]
     fn rejects_vless_with_encryption_set() {
         let err = parse_link(&vless("encryption=aes-128-gcm")).unwrap_err();
-        assert!(err.to_lowercase().contains("encryption"), "unexpected error: {err}");
+        assert!(
+            err.to_lowercase().contains("encryption"),
+            "unexpected error: {err}"
+        );
     }
 
     #[test]
     fn rejects_vless_reality_without_pbk() {
         let err = parse_link(&vless("security=reality&sid=1234")).unwrap_err();
-        assert!(err.to_lowercase().contains("pbk"), "unexpected error: {err}");
+        assert!(
+            err.to_lowercase().contains("pbk"),
+            "unexpected error: {err}"
+        );
     }
 
     #[test]
     fn rejects_vless_reality_with_bad_pbk() {
         let err = parse_link(&vless("security=reality&pbk=not-base64!!")).unwrap_err();
-        assert!(err.to_lowercase().contains("public key"), "unexpected error: {err}");
+        assert!(
+            err.to_lowercase().contains("public key"),
+            "unexpected error: {err}"
+        );
     }
 
     #[test]
     fn rejects_vless_reality_with_non_base64url_pbk() {
         // A standard-base64 '+' is not valid base64url; sing-box rejects it.
         let err = parse_link(&vless("security=reality&pbk=abc+def")).unwrap_err();
-        assert!(err.to_lowercase().contains("public key"), "unexpected error: {err}");
+        assert!(
+            err.to_lowercase().contains("public key"),
+            "unexpected error: {err}"
+        );
     }
 
     #[test]
     fn reality_short_id_longer_than_16_chars_is_rejected() {
         // sing-box PANICS on a short_id longer than 16 hex chars.
-        let err = parse_link(&vless(&format!("security=reality&pbk={PBK}&sid=123456789012345678"))).unwrap_err();
-        assert!(err.to_lowercase().contains("short id"), "unexpected error: {err}");
+        let err = parse_link(&vless(&format!(
+            "security=reality&pbk={PBK}&sid=123456789012345678"
+        )))
+        .unwrap_err();
+        assert!(
+            err.to_lowercase().contains("short id"),
+            "unexpected error: {err}"
+        );
     }
 
     #[test]
     fn reality_short_id_with_odd_length_is_rejected() {
         let err = parse_link(&vless(&format!("security=reality&pbk={PBK}&sid=123"))).unwrap_err();
-        assert!(err.to_lowercase().contains("short id"), "unexpected error: {err}");
+        assert!(
+            err.to_lowercase().contains("short id"),
+            "unexpected error: {err}"
+        );
     }
 
     #[test]
     fn reality_short_id_with_non_hex_is_rejected() {
         let err = parse_link(&vless(&format!("security=reality&pbk={PBK}&sid=zzzz"))).unwrap_err();
-        assert!(err.to_lowercase().contains("short id"), "unexpected error: {err}");
+        assert!(
+            err.to_lowercase().contains("short id"),
+            "unexpected error: {err}"
+        );
     }
 
     // ---------- Shadowsocks ----------
@@ -742,7 +791,10 @@ mod tests {
     fn rejects_ss_with_unsupported_cipher() {
         let creds = ss_b64("rc4-md5-x:secret");
         let err = parse_link(&format!("ss://{creds}@example.com:8388")).unwrap_err();
-        assert!(err.to_lowercase().contains("method"), "unexpected error: {err}");
+        assert!(
+            err.to_lowercase().contains("method"),
+            "unexpected error: {err}"
+        );
     }
 
     #[test]
@@ -750,7 +802,10 @@ mod tests {
         // sing-box fails at runtime with "illegal base64 data" for a raw password.
         let creds = ss_b64("2022-blake3-aes-128-gcm:rawpassword");
         let err = parse_link(&format!("ss://{creds}@example.com:8388")).unwrap_err();
-        assert!(err.to_lowercase().contains("password"), "unexpected error: {err}");
+        assert!(
+            err.to_lowercase().contains("password"),
+            "unexpected error: {err}"
+        );
     }
 
     #[test]
@@ -758,7 +813,10 @@ mod tests {
         // 16-byte key required for aes-128; base64 of 8 bytes decodes to 8.
         let creds = ss_b64("2022-blake3-aes-128-gcm:c2hvcnQ=");
         let err = parse_link(&format!("ss://{creds}@example.com:8388")).unwrap_err();
-        assert!(err.to_lowercase().contains("password"), "unexpected error: {err}");
+        assert!(
+            err.to_lowercase().contains("password"),
+            "unexpected error: {err}"
+        );
     }
 
     #[test]
@@ -774,7 +832,10 @@ mod tests {
     #[test]
     fn rejects_non_proxy_scheme() {
         let err = parse_link("https://example.com").unwrap_err();
-        assert!(err.to_lowercase().contains("scheme"), "unexpected error: {err}");
+        assert!(
+            err.to_lowercase().contains("scheme"),
+            "unexpected error: {err}"
+        );
     }
 
     #[test]
@@ -788,13 +849,17 @@ mod tests {
     fn is_duplicate_ignores_name() {
         let a = parse_link(&format!("vless://{UUID}@example.com:443#A")).unwrap();
         let b = parse_link(&format!("vless://{UUID}@example.com:443#B")).unwrap();
-        assert!(is_duplicate(&b, &[a]), "name must not affect duplicate detection");
+        assert!(
+            is_duplicate(&b, &[a]),
+            "name must not affect duplicate detection"
+        );
     }
 
     #[test]
     fn is_not_duplicate_for_different_uuid() {
         let a = parse_link(&format!("vless://{UUID}@example.com:443#A")).unwrap();
-        let b = parse_link("vless://00000000-0000-4000-8000-000000000001@example.com:443#B").unwrap();
+        let b =
+            parse_link("vless://00000000-0000-4000-8000-000000000001@example.com:443#B").unwrap();
         assert!(!is_duplicate(&b, &[a]));
     }
 
@@ -833,9 +898,7 @@ mod tests {
 
     #[test]
     fn import_links_deduplicates_within_the_same_batch() {
-        let text = format!(
-            "vless://{UUID}@example.com:443#A\nvless://{UUID}@example.com:443#B"
-        );
+        let text = format!("vless://{UUID}@example.com:443#A\nvless://{UUID}@example.com:443#B");
         let (nodes, report) = import_links(&text, &[]);
         assert_eq!(nodes.len(), 1);
         assert_eq!(report.imported, 1);
