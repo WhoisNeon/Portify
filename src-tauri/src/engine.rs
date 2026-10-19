@@ -177,8 +177,7 @@ pub async fn download_singbox() -> Result<PathBuf, String> {
         ));
     }
 
-    fs::write(&target, &data)
-        .map_err(|e| format!("could not write {}: {e}", target.display()))?;
+    fs::write(&target, &data).map_err(|e| format!("could not write {}: {e}", target.display()))?;
     Ok(target)
 }
 
@@ -312,7 +311,10 @@ mod tests {
     #[test]
     fn the_release_url_follows_the_version() {
         let url = release_url("amd64");
-        assert!(url.contains(SINGBOX_VERSION), "url must carry the version: {url}");
+        assert!(
+            url.contains(SINGBOX_VERSION),
+            "url must carry the version: {url}"
+        );
         assert!(url.ends_with(".zip"), "url must point at the zip: {url}");
     }
 
