@@ -248,7 +248,7 @@ pub fn build_config(nodes: &[Node], plan: &PortPlan, bind: &str, log_level: &str
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::nodes::{parse_link, ShadowsocksParams, Transport};
+    use crate::nodes::{ShadowsocksParams, Transport, parse_link};
 
     const UUID: &str = "00000000-0000-4000-8000-000000000000";
     const PBK: &str = "JakTfgIEsr35xxpcdVcDuVCpsNI7xPjbynaiNsS00BU";
@@ -301,7 +301,10 @@ mod tests {
     fn overlapping_port_ranges_are_rejected() {
         let nodes = vec![vless_node("a")];
         let err = allocate_ports(&nodes, 18080, 18080, 100).unwrap_err();
-        assert!(err.to_lowercase().contains("overlap"), "unexpected error: {err}");
+        assert!(
+            err.to_lowercase().contains("overlap"),
+            "unexpected error: {err}"
+        );
     }
 
     #[test]
@@ -339,7 +342,10 @@ mod tests {
         assert_eq!(rules.len(), 2);
         assert_eq!(rules[0]["action"], "route");
         assert_eq!(rules[0]["outbound"], "n0");
-        assert_eq!(rules[0]["inbound"], serde_json::json!(["socks-0", "http-0"]));
+        assert_eq!(
+            rules[0]["inbound"],
+            serde_json::json!(["socks-0", "http-0"])
+        );
         assert_eq!(rules[1]["outbound"], "n1");
         assert_eq!(cfg["route"]["final"], "direct");
     }
