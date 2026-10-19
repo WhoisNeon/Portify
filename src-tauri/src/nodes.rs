@@ -249,7 +249,7 @@ fn validate_ss_method(method: &str, password: &str) -> Result<(), String> {
     // The 2022 ciphers take a base64-encoded key of an exact length.
     let decoded = base64::engine::general_purpose::STANDARD
         .decode(password)
-        .or_else(|| base64::engine::general_purpose::STANDARD_NO_PAD.decode(password))
+        .or_else(|_| base64::engine::general_purpose::STANDARD_NO_PAD.decode(password))
         .map_err(|_| {
             format!("invalid password for {method} (expected a base64-encoded {key_len}-byte key)")
         })?;
