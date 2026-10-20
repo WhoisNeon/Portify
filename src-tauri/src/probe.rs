@@ -37,10 +37,10 @@ pub fn describe_error(status: Option<u16>, err: &str) -> String {
         return "the node refused the connection".to_string();
     }
     if lower.contains("timed out") || lower.contains("timeout") {
-        return "the node did not answer in time".to_string();
+        return "the node did not answer in time (the request timed out)".to_string();
     }
     if lower.contains("dns") || lower.contains("lookup") || lower.contains("name resolution") {
-        return "the node's address could not be resolved".to_string();
+        return "the node's address could not be resolved (a DNS lookup failed)".to_string();
     }
     if lower.contains("reset by peer") {
         return "the node reset the connection".to_string();
