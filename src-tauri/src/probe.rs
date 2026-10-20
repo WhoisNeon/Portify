@@ -166,14 +166,23 @@ mod tests {
 
     #[test]
     fn a_connection_refused_is_reported_plainly() {
-        let msg = describe_error(None, "error sending request for url (http://api.ipify.org/?format=json): tcp connect error: Connection refused (os error 10061)");
-        assert!(msg.to_lowercase().contains("refused"), "unexpected message: {msg}");
+        let msg = describe_error(
+            None,
+            "error sending request for url (http://api.ipify.org/?format=json): tcp connect error: Connection refused (os error 10061)",
+        );
+        assert!(
+            msg.to_lowercase().contains("refused"),
+            "unexpected message: {msg}"
+        );
     }
 
     #[test]
     fn a_timeout_is_reported_plainly() {
         let msg = describe_error(None, "error sending request: operation timed out");
-        assert!(msg.to_lowercase().contains("timed out"), "unexpected message: {msg}");
+        assert!(
+            msg.to_lowercase().contains("timed out"),
+            "unexpected message: {msg}"
+        );
     }
 
     #[test]
