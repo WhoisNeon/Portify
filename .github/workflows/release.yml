@@ -66,13 +66,16 @@ jobs:
         shell: pwsh
         run: |
           $version = "${{ steps.version.outputs.value }}"
-          $target = "target/release"
+          # Cargo's target directory lives under src-tauri, not the repo root.
+          $target = "src-tauri/target/release"
 
           # The NSIS installer built by the bundler.
-          $setup = Get-ChildItem -Path "target/release/bundle/nsis" -Filter "*setup.exe" | Select-Object -First 1
+          $setup = Get-ChildItem -Path "$target/bundle/nsis" -Filter "*setup.exe" | Select-Object -First 1
+          if (-not $setup) { throw "the NSIS installer was not built" }
           Copy-Item $setup.FullName "Portify_${version}_x64-setup.exe"
 
           # The portable executable.
+          if (-not (Test-Path "$target/portify.exe")) { throw "portify.exe was not built" }
           Copy-Item "$target/portify.exe" "Portify_${version}_x64_portable.exe"
 
           # The self-contained ZIP: Portify plus the verified sing-box binary.
@@ -81,6 +84,7 @@ jobs:
           New-Item -ItemType Directory -Path "$stage/sing-box" | Out-Null
           Copy-Item "$target/portify.exe" "$stage/portify.exe"
           $exe = Get-ChildItem -Path "sing-box-extract" -Recurse -Filter "sing-box.exe" | Select-Object -First 1
+          if (-not $exe) { throw "sing-box.exe was not downloaded" }
           Copy-Item $exe.FullName "$stage/sing-box/sing-box.exe"
           Copy-Item "scripts/README-portable.txt" "$stage/README.txt"
           Compress-Archive -Path "$stage/*" -DestinationPath "Portify_${version}_x64_portable.zip"
