@@ -330,7 +330,7 @@ pub fn export_endpoints(protocol: Option<String>) -> String {
     let nodes = store::load_nodes();
     build_endpoints(
         &nodes,
-        &protocol.unwrap_or_else(|| settings.export_protocol),
+        &protocol.unwrap_or(settings.export_protocol),
         &settings.bind_address,
     )
 }
