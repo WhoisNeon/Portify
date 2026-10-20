@@ -221,7 +221,9 @@ fn traffic_through_a_node_port_exits_that_node() {
     let request = format!(
         "GET http://127.0.0.1:{echo_port}/ HTTP/1.1\r\nHost: 127.0.0.1:{echo_port}\r\nConnection: close\r\n\r\n"
     );
-    stream.write_all(request.as_bytes()).expect("write the request");
+    stream
+        .write_all(request.as_bytes())
+        .expect("write the request");
     stream.flush().ok();
 
     let response = read_response(&mut stream);
