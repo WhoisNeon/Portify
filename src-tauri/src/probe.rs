@@ -132,6 +132,7 @@ pub async fn probe_node(node: &Node, timeout_ms: u64) -> ProbeResult {
         None => ProbeResult {
             latency_ms: Some(elapsed.as_millis() as u64),
             error: Some("the probe endpoint did not return an IP address".into()),
+            ..Default::default()
         },
     }
 }
