@@ -66,7 +66,9 @@ jobs:
       - name: Format
         run: cargo fmt --manifest-path src-tauri/Cargo.toml
       - name: Commit formatting
-        if: github.ref_type == 'branch'
+        # Only feature branches get the automatic formatting commit; master is
+        # left alone so it does not race with a human pushing to it.
+        if: github.ref_type == 'branch' && github.ref != 'refs/heads/master'
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
