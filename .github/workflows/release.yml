@@ -1,0 +1,99 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  SINGBOX_VERSION: "1.14.3"
+  SINGBOX_SHA256_AMD64: "5c19bb3f8c12d4e85b3d47fe63123a7624b314b58dd7a8e32f51004f1c4d2faf"
+  SINGBOX_SHA256_ARM64: "db11afc05195e2e6484830a0a62050a22b3d488e080bfa8e21023e55ca3153d4"
+
+jobs:
+  release:
+    name: Build and publish
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Read the version
+        id: version
+        shell: pwsh
+        run: |
+          $v = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          "value=$v" >> $env:GITHUB_OUTPUT
+          Write-Host "Building Portify $v"
+
+      - name: Download sing-box
+        shell: pwsh
+        run: |
+          $arch = "amd64"
+          $url = "https://github.com/SagerNet/sing-box/releases/download/v$env:SINGBOX_VERSION/sing-box-$env:SINGBOX_VERSION-windows-$arch.zip"
+          Invoke-WebRequest -Uri $url -OutFile sing-box.zip
+          Expand-Archive -Path sing-box.zip -DestinationPath sing-box-extract -Force
+          $exe = Get-ChildItem -Path sing-box-extract -Recurse -Filter "sing-box.exe" | Select-Object -First 1
+          $hash = (Get-FileHash -Path $exe.FullName -Algorithm SHA256).Hash.ToLower()
+          $expected = $env:SINGBOX_SHA256_AMD64
+          if ($hash -ne $expected) {
+            Write-Error "sing-box checksum mismatch: expected $expected, got $hash"
+            exit 1
+          }
+          Write-Host "sing-box verified: $hash"
+
+      - name: Build the Tauri bundles
+        shell: pwsh
+        run: npm run tauri build -- --bundles nsis
+
+      - name: Assemble the release artifacts
+        shell: pwsh
+        run: |
+          $version = "${{ steps.version.outputs.value }}"
+          $target = "target/release"
+
+          # The NSIS installer built by the bundler.
+          $setup = Get-ChildItem -Path "target/release/bundle/nsis" -Filter "*setup.exe" | Select-Object -First 1
+          Copy-Item $setup.FullName "Portify_${version}_x64-setup.exe"
+
+          # The portable executable.
+          Copy-Item "$target/portify.exe" "Portify_${version}_x64_portable.exe"
+
+          # The self-contained ZIP: Portify plus the verified sing-box binary.
+          $stage = "portable"
+          Remove-Item -Recurse -Force $stage -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path "$stage/sing-box" | Out-Null
+          Copy-Item "$target/portify.exe" "$stage/portify.exe"
+          $exe = Get-ChildItem -Path "sing-box-extract" -Recurse -Filter "sing-box.exe" | Select-Object -First 1
+          Copy-Item $exe.FullName "$stage/sing-box/sing-box.exe"
+          Copy-Item "scripts/README-portable.txt" "$stage/README.txt"
+          Compress-Archive -Path "$stage/*" -DestinationPath "Portify_${version}_x64_portable.zip"
+
+          Write-Host "Artifacts:"
+          Get-ChildItem "Portify_${version}_x64*" | ForEach-Object { Write-Host "  $($_.Name) ($($_.Length) bytes)" }
+
+      - name: Publish the release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            Portify_*_x64-setup.exe
+            Portify_*_x64_portable.exe
+            Portify_*_x64_portable.zip
+          generate_release_notes: true
+          draft: false
