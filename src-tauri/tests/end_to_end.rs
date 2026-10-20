@@ -11,7 +11,7 @@
 
 use portify_lib::config::{allocate_ports, build_config};
 use portify_lib::nodes::parse_link;
-use std::io::{BufRead, BufReader, Read, Write};
+use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
 use std::path::PathBuf;
 use std::process::{Child, Command, Stdio};
@@ -40,6 +40,9 @@ fn wait_for_port(port: u16, timeout: Duration) -> bool {
 /// dependency. The listener is bound by the child; the test waits for the
 /// port rather than assuming it is ready.
 fn spawn_echo_server(port: u16, body: &'static str) -> Child {
+    let content_length = body.len();
+    // The script is built by concatenation rather than by `format!`, so the
+    // PowerShell braces need no escaping.
     let script = format!(
         "$l = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Loopback, {port})\n\
          $l.Start()\n\
@@ -48,15 +51,13 @@ fn spawn_echo_server(port: u16, body: &'static str) -> Child {
          $s = $c.GetStream()\n\
          $buf = New-Object byte[] 4096\n\
          $null = $s.Read($buf, 0, $buf.Length)\n\
-         $resp = 'HTTP/1.1 200 OK' + \"`r`n\" + 'Content-Length: {len}' + \"`r`n\" + 'Connection: close' + \"`r`n`r`n{body}\"\n\
+         $resp = 'HTTP/1.1 200 OK' + \"`r`n\" + 'Content-Length: {content_length}' + \"`r`n\" + 'Connection: close' + \"`r`n`r`n{body}\"\n\
          $bytes = [System.Text.Encoding]::ASCII.GetBytes($resp)\n\
          $s.Write($bytes, 0, $bytes.Length)\n\
          $s.Flush()\n\
          $c.Close()\n\
          }}\n"
-    )
-    .replace("{len}", &body.len().to_string())
-    .replace("{body}", body);
+    );
 
     Command::new("powershell")
         .args(["-NoProfile", "-NonInteractive", "-Command", &script])
@@ -154,7 +155,7 @@ fn traffic_through_a_node_port_exits_that_node() {
         .spawn()
         .expect("spawn the upstream sing-box");
 
-    let cleanup = || {
+    let mut cleanup = || {
         let _ = upstream.kill();
         let _ = upstream.wait();
         let _ = std::fs::remove_file(&upstream_config_path);
@@ -192,7 +193,7 @@ fn traffic_through_a_node_port_exits_that_node() {
         .spawn()
         .expect("spawn the gateway sing-box");
 
-    let gateway_cleanup = || {
+    let mut gateway_cleanup = || {
         let _ = gateway.kill();
         let _ = gateway.wait();
         let _ = std::fs::remove_file(&config_path);
