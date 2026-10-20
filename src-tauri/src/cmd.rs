@@ -44,8 +44,12 @@ impl Default for AppState {
 pub fn build_endpoints(nodes: &[Node], protocol: &str, bind: &str) -> String {
     let mut lines = Vec::new();
     for node in nodes {
-        let Some(http_port) = node.http_port else { continue };
-        let Some(socks_port) = node.socks_port else { continue };
+        let Some(http_port) = node.http_port else {
+            continue;
+        };
+        let Some(socks_port) = node.socks_port else {
+            continue;
+        };
         match protocol {
             "socks5" => lines.push(format!("socks5://{bind}:{socks_port}")),
             "both" => {
@@ -61,7 +65,11 @@ pub fn build_endpoints(nodes: &[Node], protocol: &str, bind: &str) -> String {
 fn status_value(state: &AppState, settings: &Settings, nodes: &[Node]) -> GatewayStatus {
     let running = state.child.lock().map(|c| c.is_some()).unwrap_or(false);
     GatewayStatus {
-        state: if running { "running".into() } else { "stopped".into() },
+        state: if running {
+            "running".into()
+        } else {
+            "stopped".into()
+        },
         bind_address: settings.bind_address.clone(),
         node_count: nodes.iter().filter(|n| n.enabled).count(),
         error: None,
@@ -91,8 +99,7 @@ pub fn import_links(text: String) -> Result<crate::nodes::ImportReport, String> 
 
 #[tauri::command]
 pub fn import_file(path: String) -> Result<crate::nodes::ImportReport, String> {
-    let text =
-        std::fs::read_to_string(&path).map_err(|e| format!("could not read {path}: {e}"))?;
+    let text = std::fs::read_to_string(&path).map_err(|e| format!("could not read {path}: {e}"))?;
     import_links(text)
 }
 
@@ -428,10 +435,7 @@ mod tests {
 
     #[test]
     fn one_line_per_endpoint() {
-        let nodes = vec![
-            node_with_ports(11080, 18080),
-            node_with_ports(11081, 18081),
-        ];
+        let nodes = vec![node_with_ports(11080, 18080), node_with_ports(11081, 18081)];
         let out = build_endpoints(&nodes, "http", "127.0.0.1");
         assert_eq!(out.lines().count(), 2);
         assert!(out.lines().all(|l| l.starts_with("http://127.0.0.1:")));
