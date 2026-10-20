@@ -142,7 +142,11 @@ fn traffic_through_a_node_port_exits_that_node() {
     let upstream_config_path = std::env::temp_dir().join("portify-e2e-upstream.json");
     std::fs::write(&upstream_config_path, upstream_config).unwrap();
 
-    let _echo = spawn_echo_server(echo_port, "portify-e2e-ok");
+    let mut echo = spawn_echo_server(echo_port, "portify-e2e-ok");
+    assert!(
+        wait_for_port(echo_port, Duration::from_secs(20)),
+        "the echo server did not start listening"
+    );
 
     let mut upstream = Command::new(&singbox)
         .arg("run")
@@ -158,6 +162,8 @@ fn traffic_through_a_node_port_exits_that_node() {
     let mut cleanup = || {
         let _ = upstream.kill();
         let _ = upstream.wait();
+        let _ = echo.kill();
+        let _ = echo.wait();
         let _ = std::fs::remove_file(&upstream_config_path);
     };
 
