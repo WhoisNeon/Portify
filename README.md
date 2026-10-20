@@ -83,6 +83,15 @@ Push a `v*` tag. The release workflow builds the installer, the portable
 executable and the self-contained ZIP, and attaches them to the GitHub
 Release.
 
+## Verified
+
+The v0.1.0 artifacts were downloaded and run on a clean Windows 11 machine
+with no Rust and no Node.js installed (2026-10-20). The portable executable
+launches, renders the window and finds its bundled sing-box.
+
+The test suite also proves the routing end to end: a request sent through a
+node's HTTP port reaches a server through that node's upstream.
+
 ## License
 
 MIT
