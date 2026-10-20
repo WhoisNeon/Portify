@@ -114,10 +114,11 @@ fn traffic_through_a_node_port_exits_that_node() {
         return;
     };
 
-    // Pick free ports for every part of the chain.
+    // Pick free ports for every part of the chain. The SOCKS and HTTP
+    // ranges must not overlap, so they are a full range apart.
     let upstream_port = 18388;
     let socks_port = 19080;
-    let http_port = 19081;
+    let http_port = 19100;
     let echo_port = 18000;
     for port in [upstream_port, socks_port, http_port, echo_port] {
         assert!(
