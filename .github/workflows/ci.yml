@@ -38,13 +38,18 @@ jobs:
           Expand-Archive -Path sing-box.zip -DestinationPath sing-box-extract -Force
           $sb = (Get-ChildItem -Path sing-box-extract -Recurse -Filter "sing-box.exe" | Select-Object -First 1).FullName
           & $sb version
+          "SINGBOX_PATH=$sb" >> $env:GITHUB_ENV
       - name: Validate the generated config with sing-box
         if: success()
         shell: pwsh
         run: |
-          $sb = (Get-ChildItem -Path sing-box-extract -Recurse -Filter "sing-box.exe" | Select-Object -First 1).FullName
-          & $sb check -c src-tauri/target/singbox-fixture.json
+          & $env:SINGBOX_PATH check -c src-tauri/target/singbox-fixture.json
           if ($LASTEXITCODE -ne 0) { throw "sing-box rejected the generated config" }
+      - name: End-to-end test
+        if: success()
+        shell: pwsh
+        run: |
+          cargo test --manifest-path src-tauri/Cargo.toml --test end_to_end -- --nocapture
       - name: Verify the pinned sing-box digest
         if: success()
         shell: pwsh
